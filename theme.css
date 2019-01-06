@@ -1,0 +1,25 @@
+.body{
+}
+
+#gl-canvas{
+	width:100%;
+	height:100%;
+}
+
+#gl-setting{
+	//text-align: center;
+	width:800px;
+}
+
+#gl-setting p{
+	float:left;
+	margin-left:20px;
+}
+
+#gl-text{
+	width:200px;
+	float:right;
+	margin-top:-600px;
+	margin-right:250px;
+	font-size:15px;
+}
