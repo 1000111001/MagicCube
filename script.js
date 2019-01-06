@@ -140,6 +140,17 @@ onload = function(){
         cubes.push(cube);
     }
 
+    var textCanvas = document.getElementById("text");
+    var text_ctx = textCanvas.getContext("2d");
+    text_ctx.font = "15pt Calibri";
+    function renderFps(fps)
+    {
+        text_ctx.clearRect(0, 0, text_ctx.canvas.width, text_ctx.canvas.height);
+
+        let fpsMsg = fps + " fps";
+        text_ctx.fillText(fpsMsg, 10, 20);
+    }
+
     let camera = { position:[0.0, 2.0, 6.0], target:[0.0, 0.0, 0.0] };
     let renderer = new WebGLRenderer(c);
     let previousDate = new Date().getTime();
@@ -153,7 +164,7 @@ onload = function(){
         if (now > previousDate + 1000)
         {
             var currentFps = Math.round( frames * 1000.0 / (now - previousDate) );
-            _write(currentFps, " fps");
+            renderFps(currentFps);
             previousDate = now;
             frames = 0;
         }

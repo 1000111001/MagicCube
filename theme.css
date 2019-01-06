@@ -6,8 +6,18 @@
 	height:100%;
 }
 
+.container {
+    position: relative;
+}
+ 
+#text {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    z-index: 10;
+}
+
 #gl-setting{
-	//text-align: center;
 	width:800px;
 }
 
