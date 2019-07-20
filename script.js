@@ -112,10 +112,12 @@ onload = function () {
     var textCanvas = document.getElementById("text");
     var text_ctx = textCanvas.getContext("2d");
     text_ctx.font = "15pt Calibri";
-    function renderFps(fps) {
+    function renderFps(fps, drawcall) {
         text_ctx.clearRect(0, 0, text_ctx.canvas.width, text_ctx.canvas.height);
 
         let fpsMsg = fps + " fps";
+        let drawcallMsg = drawcall + " dc";
+        fpsMsg += ('\n' + drawcallMsg);
         text_ctx.fillText(fpsMsg, 10, 20);
     }
 
@@ -125,16 +127,18 @@ onload = function () {
     let frames = 0;
     // 主循环
     function gameLoop() {
+
+        renderer.render(camera, cubes);
+
         // Fps
         frames++;
         var now = new Date().getTime();
         if (now > previousDate + 1000) {
             var currentFps = Math.round(frames * 1000.0 / (now - previousDate));
-            renderFps(currentFps);
+            renderFps(currentFps, renderer.drawcall);
             previousDate = now;
             frames = 0;
         }
-        renderer.render(camera, cubes);
     }
     setInterval(gameLoop, 1000 / 60);
 

@@ -1,5 +1,7 @@
 function WebGLRenderer( canvas ) {
     
+    this.drawcall = 0;
+
     // webgl的context获取
     var gl = canvas.getContext('webgl') || c.getContext('experimental-webgl');
 
@@ -10,7 +12,6 @@ function WebGLRenderer( canvas ) {
     }
 
     initGLContext();
-
     this.render = function(camera, objects)
     {
         // canvas初始化
@@ -18,29 +19,30 @@ function WebGLRenderer( canvas ) {
         gl.clearDepth(1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-        renderObjects(camera, objects);
+        this.drawcall = 0;
+        this.renderObjects(camera, objects);
 
         gl.flush();
     };
     
-    function renderObjects(camera, objects)
+    this.renderObjects = function (camera, objects)
     {
         for (let o of objects)
         {
-            renderObject(camera, o);
+            this.renderObject(camera, o);
         }
     }
 
-    function renderObject(camera, object)
+    this.renderObject = function (camera, object)
     {
-        renderBuffer(camera, object);
+        this.renderBuffer(camera, object);
     }
     
     var m = new matIV();
 
     let positionBuffer, normalBuffer, colorBuffer, indexBuffer;
 
-    function renderBuffer(camera, object)
+    this.renderBuffer = function (camera, object)
     {
 		var programAttributes = getAttributes(object.program);
 
@@ -106,6 +108,7 @@ function WebGLRenderer( canvas ) {
 
         // draw
         gl.drawElements(gl.TRIANGLES, object.index.length, gl.UNSIGNED_SHORT, 0);
+        this.drawcall++;
 
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
