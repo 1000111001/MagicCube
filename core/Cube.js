@@ -3,6 +3,7 @@ Cube = function(size)
     this.position = [0, 0, 0];
     this.scale = [0, 0, 0];
     this.rotation = [0, 0, 0];
+    this.matrix = matrixHelper.identity(matrixHelper.create());
 
     let halfEdge = size / 2;
     this.vertices = [
@@ -82,18 +83,29 @@ Cube = function(size)
 }
 
 Cube.prototype = {
+
+    setPosition : function(vec) {
+        this.position = vec;
+        let mat = [];
+        matrixHelper.translate(this.matrix, vec, mat);
+        this.applyMatrix(mat);
+    },
+
     SetColors : function(colors) {
         this.colors = colors;
     },
 
-    positionArray : function() {
-        let array = this.vertices.slice();
-        for (let i = 0; i < array.length; i += 3)
+    applyMatrix : function(matrix) {
+        matrixHelper.multiply(matrix, this.matrix, this.matrix);
+    },
+
+    getMatrix : function() {
+        let mat = matrixHelper.identity(matrixHelper.create());
+        matrixHelper.multiply(this.matrix, mat, mat);
+        if (this.parent)
         {
-            array[i + 0] += this.position[0];
-            array[i + 1] += this.position[1];
-            array[i + 2] += this.position[2];
-        }         
-        return array;
+            matrixHelper.multiply(this.parent.matrix, mat, mat);
+        }
+        return mat;
     }
 }

@@ -51,7 +51,7 @@ function WebGLRenderer( canvas ) {
         {
             buffers.position =  gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position); 
-            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(object.position), gl.STATIC_DRAW);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(object.vertices), gl.STATIC_DRAW);
         }
         gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position); 
         gl.enableVertexAttribArray(programAttributes.position);  
@@ -61,7 +61,7 @@ function WebGLRenderer( canvas ) {
         {
             buffers.normal = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, buffers.normal); 
-            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(object.normal), gl.STATIC_DRAW);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(object.normals), gl.STATIC_DRAW);
         }
         gl.bindBuffer(gl.ARRAY_BUFFER, buffers.normal); 
         gl.enableVertexAttribArray(programAttributes.normal);  
@@ -71,7 +71,7 @@ function WebGLRenderer( canvas ) {
         {
             buffers.color = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, buffers.color); 
-            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(object.color), gl.STATIC_DRAW);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(object.colors), gl.STATIC_DRAW);
         }
         gl.bindBuffer(gl.ARRAY_BUFFER, buffers.color); 
         gl.enableVertexAttribArray(programAttributes.color);  
@@ -80,7 +80,7 @@ function WebGLRenderer( canvas ) {
         gl.useProgram(object.program);  
     
         // 各种矩阵的生成和初始化 
-        let mMatrix   = object.matrix; // 模型矩阵
+        let mMatrix   = object.getMatrix(); // 模型矩阵
         let vMatrix   = m.identity(m.create());
         let pMatrix   = m.identity(m.create());
         let vpMatrix  = m.create();
@@ -102,12 +102,12 @@ function WebGLRenderer( canvas ) {
         {
             indexBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Int16Array(object.index), gl.STATIC_DRAW);
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Int16Array(object.indices), gl.STATIC_DRAW);
         }
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
 
         // draw
-        gl.drawElements(gl.TRIANGLES, object.index.length, gl.UNSIGNED_SHORT, 0);
+        gl.drawElements(gl.TRIANGLES, object.indices.length, gl.UNSIGNED_SHORT, 0);
         this.drawcall++;
 
         gl.bindBuffer(gl.ARRAY_BUFFER, null);

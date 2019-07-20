@@ -1,3 +1,5 @@
+matrixHelper = new matIV();
+
 onload = function () {
     // canvas对象获取
     var canvas = document.getElementById('canvas');
@@ -96,17 +98,11 @@ onload = function () {
     // init cubes
     var cubeCenter = [0.0, 0.0, 0.0];
     var mcube = new Mcube(3, cubeCenter, 0.9);
-    let cubes = [];
+    let cubes = mcube.cubes;
     for (let i = 0; i < mcube.cubes.length; i++) {
-        let cube = {};
-        cube.position = mcube.cubes[i].positionArray();
-        cube.normal = mcube.cubes[i].normals;
-        cube.color = mcube.cubes[i].colors;
-        cube.index = mcube.cubes[i].indices;
+        let cube = mcube.cubes[i];
         cube.program = prg;
-        cube.matrix = m.identity(m.create());
         cube.buffers = {};
-        cubes.push(cube);
     }
 
     var textCanvas = document.getElementById("text");
@@ -168,9 +164,7 @@ onload = function () {
             m.rotate(newRotationMatrix, deltaX * Math.PI / 400, [0, 1, 0], newRotationMatrix);
             m.rotate(newRotationMatrix, deltaY * Math.PI / 400, [1, 0, 0], newRotationMatrix);
 
-            for (var c of cubes) {
-                m.multiply(newRotationMatrix, c.matrix, c.matrix);
-            }
+            matrixHelper.multiply(newRotationMatrix, mcube.matrix, mcube.matrix);
         }
 
         //鼠标左键

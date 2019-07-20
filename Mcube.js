@@ -10,6 +10,9 @@ this.colors           颜色数据
 ---------------------------------------------*/
 function Mcube(Morder, Mcenter, Msize) {
 
+	this.position = [0, 0, 0];
+	this.matrix = matrixHelper.identity(matrixHelper.create());
+
 	this.red    = [1.0, 0.0, 0.0, 1.0];
 	this.yellow = [1.0, 1.0, 0.0, 1.0];
 	this.orange = [1.0, 0.647, 0.0, 1.0];
@@ -28,7 +31,7 @@ function Mcube(Morder, Mcenter, Msize) {
 		let cube = new Cube(bsize);
 
 		let size = 1.1 * bsize;
-		cube.position = [size * (x - middle), size * (y - middle), size * (z - middle)];
+		cube.setPosition([size * (x - middle), size * (y - middle), size * (z - middle)]);
 
 		let colors = [];
 		if (z == Morder - 1) for (var j = 0; j < 4; j++) colors = colors.concat(this.red);
@@ -44,6 +47,8 @@ function Mcube(Morder, Mcenter, Msize) {
 		if (y == 0) for (var j = 0; j < 4; j++) colors = colors.concat(this.blue);
 		else for (var j = 0; j < 4; j++) colors = colors.concat(this.black);
 		cube.SetColors(colors);
+
+		cube.parent = this;
 
 		this.cubes.push(cube)
 	}
