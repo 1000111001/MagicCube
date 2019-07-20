@@ -11,14 +11,14 @@ function WebGLRenderer( canvas ) {
 
     initGLContext();
 
-    this.render = function(camera, objcets)
+    this.render = function(camera, objects)
     {
         // canvas初始化
         gl.clearColor(0.2, 0.34, 0.65, 1.0);
         gl.clearDepth(1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-        renderObjects(camera, objcets);
+        renderObjects(camera, objects);
 
         gl.flush();
     };
@@ -44,77 +44,65 @@ function WebGLRenderer( canvas ) {
     {
 		var programAttributes = getAttributes(object.program);
 
-        if (positionBuffer == null)
+        let buffers = object.buffers;
+        if (!buffers.position) 
         {
-            positionBuffer =  gl.createBuffer();
+            buffers.position =  gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position); 
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(object.position), gl.STATIC_DRAW);
         }
-        var vertices = object.position.slice(0);
-        for (var i = 0; i < vertices.length; i += 3)
-        {
-            var vertex = [vertices[i], vertices[i + 1], vertices[i + 2]];
-            m.multiplyVec3(object.mat, vertex, vertex);
-            vertices[i] = vertex[0];
-            vertices[i + 1] = vertex[1];
-            vertices[i + 2] = vertex[2];
-        }
-        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer); 
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position); 
         gl.enableVertexAttribArray(programAttributes.position);  
-        gl.vertexAttribPointer(programAttributes.position, 3, gl.FLOAT, false, 0, 0);  
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        gl.vertexAttribPointer(programAttributes.position, 3, gl.FLOAT, false, 0, 0);
 
-        if (normalBuffer == null)
+        if (!buffers.normal) 
         {
-            normalBuffer =  gl.createBuffer();
+            buffers.normal = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, buffers.normal); 
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(object.normal), gl.STATIC_DRAW);
         }
-        gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer); 
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(object.normal), gl.STATIC_DRAW);
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffers.normal); 
         gl.enableVertexAttribArray(programAttributes.normal);  
-        gl.vertexAttribPointer(programAttributes.normal, 3, gl.FLOAT, false, 0, 0);  
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        gl.vertexAttribPointer(programAttributes.normal, 3, gl.FLOAT, false, 0, 0); 
 
-        if (colorBuffer == null)
+        if (!buffers.color) 
         {
-
-            colorBuffer = gl.createBuffer();
+            buffers.color = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, buffers.color); 
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(object.color), gl.STATIC_DRAW);
         }
-        gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer); 
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(object.color), gl.STATIC_DRAW);
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffers.color); 
         gl.enableVertexAttribArray(programAttributes.color);  
-        gl.vertexAttribPointer(programAttributes.color, 4, gl.FLOAT, false, 0, 0);  
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        gl.vertexAttribPointer(programAttributes.color, 4, gl.FLOAT, false, 0, 0);
         
-        // matrix
-        var uniLocation = new Array();  
-        uniLocation[0] = gl.getUniformLocation(object.program, 'mMatrix');  
-        uniLocation[1] = gl.getUniformLocation(object.program, 'invMatrix');  
-        uniLocation[3] = gl.getUniformLocation(object.program, 'vpMatrix'); 
+        gl.useProgram(object.program);  
     
         // 各种矩阵的生成和初始化 
-        var mMatrix   = m.identity(m.create());
-        var vMatrix   = m.identity(m.create());
-        var pMatrix   = m.identity(m.create());
-        var vpMatrix  = m.identity(m.create());
-        var invMatrix = m.identity(m.create()); 
+        let mMatrix   = object.matrix; // 模型矩阵
+        let vMatrix   = m.identity(m.create());
+        let pMatrix   = m.identity(m.create());
+        let vpMatrix  = m.create();
+        let mvpMatrix = m.create();
         
         // 视图x投影坐标变换矩阵
         m.lookAt(camera.position, camera.target, [0, 1, 0], vMatrix);
         m.perspective(45, 800 / 600, 0.1, 100, pMatrix);
         m.multiply(pMatrix, vMatrix, vpMatrix);
+        m.multiply(vpMatrix, mMatrix, mvpMatrix);
 
-        // uniform变量  
-        gl.uniformMatrix4fv(uniLocation[0], false, mMatrix);
-        gl.uniformMatrix4fv(uniLocation[1], false, invMatrix); 
-        gl.uniformMatrix4fv(uniLocation[3], false, vpMatrix);
-
+        // uniform变量
+        gl.uniformMatrix4fv(gl.getUniformLocation(object.program, 'mMatrix'), false, mMatrix);
+        gl.uniformMatrix4fv(gl.getUniformLocation(object.program, 'mvpMatrix'), false, mvpMatrix);
+        gl.uniform3f(gl.getUniformLocation(object.program, 'lightDirection'), -0.5, 1.0, 0.5);
 
         // index buffer
         if (indexBuffer == null)
         {
             indexBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Int16Array(object.index), gl.STATIC_DRAW);
         }
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Int16Array(object.index), gl.STATIC_DRAW);
 
         // draw
         gl.drawElements(gl.TRIANGLES, object.index.length, gl.UNSIGNED_SHORT, 0);
@@ -137,7 +125,6 @@ function WebGLRenderer( canvas ) {
         for ( var i = 0; i < n; i ++ ) {
             var info = gl.getActiveAttrib( program, i );
             var name = info.name;
-            // console.log( 'THREE.WebGLProgram: ACTIVE VERTEX ATTRIBUTE:', name, i );
             attributes[ name ] = gl.getAttribLocation( program, name );
         }
         return attributes;

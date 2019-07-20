@@ -18,7 +18,7 @@
             attribute vec4 color;
             attribute vec2 textureCoord;
             uniform   mat4 mMatrix;
-            uniform   mat4 vpMatrix;
+            uniform   mat4 mvpMatrix;
             //uniform   sampler2D texture;
             varying   vec4 vColor;
             varying   vec2 vTextureCoord;
@@ -37,16 +37,10 @@
                 float diffuse = max(dot(lightDirection,no_di),0.4); //计算法线与光线的点积,光照系数
                 vec3  li = diffuse * li_co; //应用光的颜色
 
-                if(int(switchs.x) == 1)
-                    vColor = color * vec4(li, 1.0);
-                else
-                    vColor = color;
-                /*vec3  invLight = normalize(invMatrix * vec4(lightDirection, 0.0)).xyz;  
-                float diffuse  = clamp(dot(normal, invLight), 0.1, 1.0) + 0.1;  //光系数
-                vColor         = color * vec4(vec3(diffuse), 1.0);*/
+                vColor = color * vec4(li, 1.0);
 
                 vTextureCoord = textureCoord;     
-                gl_Position   = vpMatrix * mMatrix * vec4(position, 1.0); 
+                gl_Position   = mvpMatrix * vec4(position, 1.0); 
             } 
 		</script>
 
