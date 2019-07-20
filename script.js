@@ -50,7 +50,6 @@ onload = function () {
     var t = m.create();
     m.identity(t);
 
-
     // webgl的context获取
     var gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
 
@@ -75,28 +74,6 @@ onload = function () {
     attStride[1] = 4;
     attStride[2] = 3;
 
-    var para2 = [0.0, 0.0, 0.0];
-    var mcube = new Mcube(3, para2, 0.9);
-    mcube.dot3(0.00);
-    mcube.create_blockPos();
-    mcube.dot3_colors();
-
-    // 27个方块公用索引信息
-    var index = [
-        0, 1, 2,
-        0, 2, 3,
-        4, 5, 6,
-        4, 6, 7,
-        8, 9, 10,
-        8, 10, 11,
-        12, 13, 14,
-        12, 14, 15,
-        16, 17, 18,
-        16, 18, 19,
-        20, 21, 22,
-        20, 22, 23,
-    ];
-
     // 获取uniformLocation并保存到数组中  
     var uniLocation = new Array();
     uniLocation[0] = gl.getUniformLocation(prg, 'mMatrix');
@@ -104,10 +81,6 @@ onload = function () {
     uniLocation[2] = gl.getUniformLocation(prg, 'lightDirection');
     uniLocation[3] = gl.getUniformLocation(prg, 'vpMatrix');
     uniLocation[4] = gl.getUniformLocation(prg, 'switchs');
-
-    //gl.enable(gl.DEPTH_TEST);
-    //gl.depthFunc(gl.LEQUAL);
-    //gl.enable(gl.CCULL_FACE);
 
     // 平行光源的方向  
     var lightDirection = [-0.5, 1.0, 0.5];
@@ -120,22 +93,16 @@ onload = function () {
     document.getElementById('depth').checked = "true";
     gaptext.value = "3";
 
-    //最前面变化标志
-    var turnflag = -1;
-    var reverseFlag = false;   //逆向标志
-    var shuffleCount = 2;
-
     // init cubes
+    var cubeCenter = [0.0, 0.0, 0.0];
+    var mcube = new Mcube(3, cubeCenter, 0.9);
     let cubes = [];
-    mcube.dot3(0.03);
-    mcube.create_blockPos();
-    // for (let k = 0; k < 100; ++k)
-    for (let i = 0; i < 27; i++) {
+    for (let i = 0; i < mcube.cubes.length; i++) {
         let cube = {};
-        cube.position = mcube.blockPos[i];
-        cube.normal = mcube.create_normals();
-        cube.color = mcube.colors[i];
-        cube.index = index.slice();
+        cube.position = mcube.cubes[i].positionArray();
+        cube.normal = mcube.cubes[i].normals;
+        cube.color = mcube.cubes[i].colors;
+        cube.index = mcube.cubes[i].indices;
         cube.program = prg;
         cube.matrix = m.identity(m.create());
         cube.buffers = {};
@@ -152,7 +119,7 @@ onload = function () {
         text_ctx.fillText(fpsMsg, 10, 20);
     }
 
-    let camera = { position: [0.0, 2.0, 6.0], target: [0.0, 0.0, 0.0] };
+    let camera = { position: [0.0, 4.0, 12.0], target: [0.0, 0.0, 0.0] };
     let renderer = new WebGLRenderer(canvas);
     let previousDate = new Date().getTime();
     let frames = 0;
@@ -167,10 +134,8 @@ onload = function () {
             previousDate = now;
             frames = 0;
         }
-
         renderer.render(camera, cubes);
     }
-
     setInterval(gameLoop, 1000 / 60);
 
     function handleMouseMove(e) {
@@ -224,8 +189,6 @@ onload = function () {
 
     function scrollFunc(e) {
         e = e || window.event;
-        //alert(e.detail); 
-        //m.scale(rollMatrix, [0, 0, e.detail, 0], rollMatrix);
         if (e.detail > 0)   //缩小
             rolldetail *= 1.0666;
         else             //放大
@@ -242,39 +205,6 @@ onload = function () {
 
     function clearCoordarea() {
         coordArea.innerHTML = null;;
-    }
-
-    function isInArr(i, arr) {
-        for (var j = 0, len = arr.length; j < len; j++)
-            if (i == arr[j])
-                return true;
-        return false;
-    }
-
-    function rollArr(arr) {
-        var dest = [];
-        for (var i = 0; i < 9; i++) dest[i] = arr[i];
-        for (var i = 0; i < 3; i++) {
-            var tmp = dest[3 * i + 0];
-            dest[3 * i + 0] = dest[3 * i + 2];
-            dest[3 * i + 2] = tmp;
-        }
-        return dest;
-    }
-
-    function rollPage(page, rORc) {
-        var dest = [];
-        for (var i = 0; i < 6; i++) dest[i] = page[i];
-        if (rORc) {
-            var tmp = dest[2];
-            dest[2] = dest[3];
-            dest[3] = tmp;
-        } else {
-            var tmp = dest[4];
-            dest[4] = dest[5];
-            dest[5] = tmp;
-        }
-        return dest;
     }
 
     //客户端坐标转canvas坐标
