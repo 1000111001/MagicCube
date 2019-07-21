@@ -1,4 +1,5 @@
 matrixHelper = new matIV();
+let camera = { position: [0.0, 4.0, 12.0], target: [0.0, 0.0, 0.0] };
 
 onload = function () {
     // canvas对象获取
@@ -117,7 +118,6 @@ onload = function () {
         text_ctx.fillText(fpsMsg, 10, 20);
     }
 
-    let camera = { position: [0.0, 4.0, 12.0], target: [0.0, 0.0, 0.0] };
     let renderer = new WebGLRenderer(canvas);
     let previousDate = new Date().getTime();
     let frames = 0;
@@ -178,6 +178,25 @@ onload = function () {
         MBUTTON = e.button;
         lastMouseX = e.clientX;
         lastMouseY = e.clientY;
+
+        if (MBUTTON == 2) return;
+
+        var loc = windowTocanvas(canvas, e.clientX, e.clientY);
+        let ray_world = screenPosToWorld(loc);
+        let dir = [ray_world[0] - camera.position[0], ray_world[1] - camera.position[1], ray_world[2] - camera.position[2]];
+        let ray = new Ray(camera.position, dir);
+
+        let minDistance = 99999;
+        let hitCube = null;
+        for (let i = 0; i < mcube.cubes.length; ++i)
+        {
+            let hit = ray.intersectCube(mcube.cubes[i]);
+            if (hit != null && hit.t < minDistance) {
+                minDistance = hit.t;
+                hitCube = hit.obj;
+            }
+        }
+        console.log(hitCube);
     }
 
     function handleMouseUp(e) {
@@ -212,5 +231,32 @@ onload = function () {
             x: x - bbox.left * (canvas.width / bbox.width),
             y: y - bbox.top * (canvas.height / bbox.height)
         };
+    }
+
+    function screenPosToWorld(loc) {
+        canvasx = parseInt(loc.x);
+        canvasy = parseInt(loc.y);
+        let x = (2 * canvasx) / 800 - 1;
+        let y = 1 - (2 * canvasy) / 600;    
+        let z = 1;
+        
+        let matrix = {};
+        let vMatrix = m.identity(m.create());
+        let pMatrix = m.identity(m.create());
+        m.lookAt(camera.position, camera.target, [0, 1, 0], vMatrix);
+        m.perspective(45, 800 / 600, 0.1, 100, pMatrix);
+        
+        let ray_clip = [x, y, z, 1];
+        matrixHelper.inverse(pMatrix, matrix);
+        let ray_eye = matrixHelper.multiplyVec4(matrix, ray_clip);
+        matrixHelper.inverse(vMatrix, matrix);
+        let ray_world = matrixHelper.multiplyVec4(matrix, ray_eye);
+        if (ray_world[3] != 0)  
+        {  
+            ray_world[0] /= ray_world[3];  
+            ray_world[1] /= ray_world[3];  
+            ray_world[2] /= ray_world[3];           
+        }
+        return ray_world;
     }
 };

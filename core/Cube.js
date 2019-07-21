@@ -80,6 +80,11 @@ Cube = function(size)
         16, 17, 18,  16, 18, 19,
         20, 21, 22,  20, 22, 23,
     ];
+
+    this.box = {
+        min : { x : -halfEdge, y : -halfEdge, z : -halfEdge },
+        max : { x :  halfEdge, y :  halfEdge, z :  halfEdge },
+    }
 }
 
 Cube.prototype = {

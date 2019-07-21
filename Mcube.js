@@ -48,9 +48,19 @@ function Mcube(Morder, Mcenter, Msize) {
 		else for (var j = 0; j < 4; j++) colors = colors.concat(this.black);
 		cube.SetColors(colors);
 
+		cube.id = [x, y, z];
 		cube.parent = this;
 
 		this.cubes.push(cube)
+	}
+
+	this.rotateGroup = function(group, normal) {
+		for (let cube in group)
+		{
+			let rot = matrixHelper.identity(matrixHelper.create());
+			matrixHelper.rotate(rot, Math.PI / 2, normal, rot);
+			matrixHelper.multiply(rot, cube.matrix, cube.matrix);
+		}
 	}
 
 	//create indexs
