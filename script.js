@@ -138,6 +138,10 @@ onload = function () {
     }
     setInterval(gameLoop, 1000 / 60);
 
+    let hitCube = null;
+    let dragDir;
+    let dragGroups;
+    let dragRots;
     function handleMouseMove(e) {
         if (!mouseDown) {
             return;
@@ -169,7 +173,39 @@ onload = function () {
 
         //鼠标左键
         if (MBUTTON == 0) {
+            if (hitCube == null) return;
 
+            let v = [deltaY / 128, deltaX / 128, 0];
+            let inverseMat = [];
+            matrixHelper.inverse(mcube.matrix, inverseMat);
+            matrixHelper.multiplyVec3(inverseMat, v);
+            
+            let groups = dragGroups;
+            for (let i = 0; i < mcube.cubes.length; ++i)
+            {
+                let c = mcube.cubes[i];
+                for (let j = 0; j < 3; ++j)
+                {
+                    if (Math.abs(c.position[j] - hitCube.position[j]) < 0.001) groups[j].push(c);
+                }
+            }
+            
+            var ndir;
+            let m = matrixHelper.translate(matrixHelper.identity([]), v, []);
+            let mpos = matrixHelper.multiply(m, matrixHelper.inverse(mcube.matrix, []), []).slice(-4,-1);
+            let group=groups[o=mpos.map(Math.abs),ndir=o.indexOf(Math.max.apply(Math,o))];
+
+            let normal = [0, 0, 0];
+            normal[ndir] = 1;
+            mcube.rotateGroup(group, normal, mpos[ndir]);
+            
+            if(dragDir != void 0 &&  dragDir != ndir)
+            {
+                mcube.rotateGroup(groups[dragDir], normal, 0);
+            }
+            if(group = groups[dragDir = ndir])
+                mcube.rotateGroup(group, normal, mpos[dragDir]);
+            dragRots = mpos;
         }
     }
 
@@ -187,7 +223,7 @@ onload = function () {
         let ray = new Ray(camera.position, dir);
 
         let minDistance = 99999;
-        let hitCube = null;
+        hitCube = null;
         for (let i = 0; i < mcube.cubes.length; ++i)
         {
             let hit = ray.intersectCube(mcube.cubes[i]);
@@ -197,11 +233,28 @@ onload = function () {
             }
         }
         console.log(hitCube);
+        if (hitCube != null)
+        {
+            dragGroups=[[],[],[]]
+            for (let i = 0; i < mcube.cubes.length; ++i)
+            {
+                let c = mcube.cubes[i];
+                for (let j = 0; j < 3; ++j)
+                {
+                    if (Math.abs(c.position[j] - hitCube.position[j]) < 0.001) dragGroups[j].push(c);
+                }
+            }
+        }
     }
 
     function handleMouseUp(e) {
         mouseDown = false;
         MBUTTON = null;
+
+        if (dragGroups == null) return;
+        
+        let angle = 180 * dragRots[dragDir] / Math.PI;
+        console.log(angle);
     }
 
     function scrollFunc(e) {

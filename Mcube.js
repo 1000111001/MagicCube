@@ -54,103 +54,13 @@ function Mcube(Morder, Mcenter, Msize) {
 		this.cubes.push(cube)
 	}
 
-	this.rotateGroup = function(group, normal) {
-		for (let cube in group)
+	this.rotateGroup = function(group, normal, angle) {
+		for (let cube of group)
 		{
 			let rot = matrixHelper.identity(matrixHelper.create());
-			matrixHelper.rotate(rot, Math.PI / 2, normal, rot);
-			matrixHelper.multiply(rot, cube.matrix, cube.matrix);
+			matrixHelper.rotate(rot, angle, normal, rot);
+			cube.matrix = rot;
+			matrixHelper.multiply(rot, matrixHelper.translate(matrixHelper.identity([]), cube.position, []), cube.matrix);
 		}
-	}
-
-	//create indexs
-	this.create_index = function () {
-		this._index = new Array();
-		var i = 0;
-		var j = 0;
-
-		for (i = 0; i < this.blocks; i++) {  //this.blocks(27)个方块
-			for (j = 0; j < 6; j++) {   //每个方块6个面, 24个索引
-				//每个面两个三角形基本图元，4个索引
-				this._index.push(0 + 4 * j + 24 * i);
-				this._index.push(1 + 4 * j + 24 * i);
-				this._index.push(2 + 4 * j + 24 * i);
-				this._index.push(0 + 4 * j + 24 * i);
-				this._index.push(2 + 4 * j + 24 * i);
-				this._index.push(3 + 4 * j + 24 * i);
-			}
-		}
-
-		return this._index;
-	};
-
-
-	//-------------------function for operation--------------------
-	//方块颜色纵向旋转
-	this.roll_col_colors_90 = function (i, pages) {
-		//rollArrReserve(pages, 0);
-		if (!pages) pages = [0, 1, 2, 3, 4, 5];
-		var tmp = new Array();
-		for (var k = 0; k < 16; k++) {
-			tmp.push(this.colors[i][pages[0] * 16 + k]);
-		}
-		for (var j = 0; j < 16; j++) {
-			this.colors[i][pages[0] * 16 + j] = this.colors[i][pages[4] * 16 + j];  //上转前
-			this.colors[i][pages[4] * 16 + j] = this.colors[i][pages[1] * 16 + j];
-			this.colors[i][pages[1] * 16 + j] = this.colors[i][pages[5] * 16 + j];
-			this.colors[i][pages[5] * 16 + j] = tmp[j];
-		}
-
-		return this.colors[i];
-	};
-
-	//方块颜色横向旋转
-	this.roll_row_colors_90 = function (i, pages) {
-		if (!pages) pages = [0, 1, 2, 3, 4, 5];
-		var tmp = new Array();
-		for (var k = 0; k < 16; k++) {
-			tmp.push(this.colors[i][pages[0] * 16 + k]);
-		}
-		//前0 后1 左2 右3 上4 下5
-		for (var j = 0; j < 16; j++) {
-			this.colors[i][pages[0] * 16 + j] = this.colors[i][pages[2] * 16 + j];  //左转前
-			this.colors[i][pages[2] * 16 + j] = this.colors[i][pages[1] * 16 + j];
-			this.colors[i][pages[1] * 16 + j] = this.colors[i][pages[3] * 16 + j];
-			this.colors[i][pages[3] * 16 + j] = tmp[j];
-		}
-
-		return this.colors[i];
-	};
-
-	this.colorChangeforTurn = function (i) {
-
-	}
-
-}
-
-//数组反转用于方块逆向旋转
-function rollArrReserve(arr, flag) {
-	if (arr.length != 6) alert("error!");
-	var tmp;
-	if (flag == 0) {   //col
-		tmp = arr[4];
-		arr[4] = arr[5];
-		arr[5] = tmp;
-	}
-	if (flag == 1) {   //row
-		tmp = arr[2];
-		arr[2] = arr[3];
-		arr[3] = tmp;
-	}
-}
-
-function arrReserve(arr) {
-	var i = 0, j = arr.length - 1;
-	while (i < j) {
-		var tmp = arr[i];
-		arr[i] = arr[j];
-		arr[j] = tmp;
-		i++;
-		j--;
 	}
 }
