@@ -12,14 +12,6 @@ onload = function () {
 
     var keycode = null;
 
-    var keyQ = 81;
-    var keyW = 87;
-    var keyE = 69;
-    var keyA = 65;
-    var keyS = 83;
-    var keyD = 68;
-    var keys = [keyQ, keyW, keyE, keyA, keyS, keyD];
-
     //鼠标相关变量
     var deltaX = 0;
     var deltaY = 0;
@@ -175,24 +167,15 @@ onload = function () {
         if (MBUTTON == 0) {
             if (hitCube == null) return;
 
-            let v = [deltaY / 128, deltaX / 128, 0];
-            let inverseMat = [];
-            matrixHelper.inverse(mcube.matrix, inverseMat);
-            matrixHelper.multiplyVec3(inverseMat, v);
+            let v = [deltaY / 2, deltaX / 2, 0];
+            // let inverseMat = [];
+            // matrixHelper.inverse(mcube.matrix, inverseMat);
+            // matrixHelper.multiplyVec3(inverseMat, v, v);
             
             let groups = dragGroups;
-            for (let i = 0; i < mcube.cubes.length; ++i)
-            {
-                let c = mcube.cubes[i];
-                for (let j = 0; j < 3; ++j)
-                {
-                    if (Math.abs(c.position[j] - hitCube.position[j]) < 0.001) groups[j].push(c);
-                }
-            }
-            
             var ndir;
             let m = matrixHelper.translate(matrixHelper.identity([]), v, []);
-            let mpos = matrixHelper.multiply(m, matrixHelper.inverse(mcube.matrix, []), []).slice(-4,-1);
+            let mpos = matrixHelper.multiply(matrixHelper.inverse(mcube.matrix, []), m, []).slice(-4,-1); // 将转动向量变换到mcube坐标系中
             let group=groups[o=mpos.map(Math.abs),ndir=o.indexOf(Math.max.apply(Math,o))];
 
             let normal = [0, 0, 0];
@@ -232,16 +215,23 @@ onload = function () {
                 hitCube = hit.obj;
             }
         }
-        console.log(hitCube);
+        // console.log(hitCube);
         if (hitCube != null)
         {
             dragGroups=[[],[],[]]
+            let hitCubeMatrix = hitCube.matrix;
+            hitCubePos = [hitCubeMatrix[12], hitCubeMatrix[13], hitCubeMatrix[14]];
             for (let i = 0; i < mcube.cubes.length; ++i)
             {
                 let c = mcube.cubes[i];
+                let cubeMatrix = c.matrix;
+                cubePos = [cubeMatrix[12], cubeMatrix[13], cubeMatrix[14]];
                 for (let j = 0; j < 3; ++j)
                 {
-                    if (Math.abs(c.position[j] - hitCube.position[j]) < 0.001) dragGroups[j].push(c);
+                    if (Math.abs(cubePos[j] - hitCubePos[j]) < 0.001)
+                    {
+                        dragGroups[j].push(c);
+                    }
                 }
             }
         }
@@ -249,12 +239,38 @@ onload = function () {
 
     function handleMouseUp(e) {
         mouseDown = false;
+        if (MBUTTON == 2)
+        {
+            MBUTTON = null;
+            return;
+        }
         MBUTTON = null;
 
+        if (hitCube == null) return;
         if (dragGroups == null) return;
         
         let angle = 180 * dragRots[dragDir] / Math.PI;
-        console.log(angle);
+        let group = dragGroups[dragDir];
+        let normal = [0, 0, 0];
+        normal[dragDir] = 1;
+        let r = Math.round(dragRots[dragDir]/90)%4;
+        for(let i = 0; i < group.length; i++)
+        {
+            let o = group[i];
+            mcube.rotateCube(o, normal, r)
+        }
+        if(r = dragRots[dragDir]%=90)
+        {
+            if(Math.abs(r)>45)
+            {
+                r = r < 0 ? 90-Math.abs(r) : Math.abs(r)-90;   
+            }
+        }
+        (function callee(){
+            if(Math.abs(r*=0.7) < 0.5) r=0;
+            mcube.rotateGroup(group, normal, r);
+            if(r)setTimeout(callee,16);
+        })();
     }
 
     function scrollFunc(e) {

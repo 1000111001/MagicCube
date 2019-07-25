@@ -55,12 +55,18 @@ function Mcube(Morder, Mcenter, Msize) {
 	}
 
 	this.rotateGroup = function(group, normal, angle) {
-		for (let cube of group)
+		for (let i = 0; i < group.length; ++i)
 		{
+			let cube = group[i];
 			let rot = matrixHelper.identity(matrixHelper.create());
-			matrixHelper.rotate(rot, angle, normal, rot);
-			cube.matrix = rot;
-			matrixHelper.multiply(rot, matrixHelper.translate(matrixHelper.identity([]), cube.position, []), cube.matrix);
+			matrixHelper.rotate(rot, Math.PI * angle / 180.0, normal, rot);
+			matrixHelper.multiply(rot, cube.m, cube.matrix);
 		}
+	}
+
+	this.rotateCube = function(cube, normal, angle) {
+		let rot = matrixHelper.identity(matrixHelper.create());
+		matrixHelper.rotate(rot, angle * Math.PI / 2, normal, rot);
+		matrixHelper.multiply(rot, cube.m, cube.m);
 	}
 }

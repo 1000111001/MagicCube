@@ -2,8 +2,9 @@ Cube = function(size)
 {
     this.position = [0, 0, 0];
     this.scale = [0, 0, 0];
-    this.rotation = [0, 0, 0];
+    this.rotation = matrixHelper.identity(matrixHelper.create());;
     this.matrix = matrixHelper.identity(matrixHelper.create());
+    this.m = matrixHelper.identity(matrixHelper.create());
 
     let halfEdge = size / 2;
     this.vertices = [
@@ -101,12 +102,13 @@ Cube.prototype = {
     },
 
     applyMatrix : function(matrix) {
+        matrixHelper.multiply(matrix, this.m, this.m);
         matrixHelper.multiply(matrix, this.matrix, this.matrix);
     },
 
     getMatrix : function() {
         let mat = matrixHelper.identity(matrixHelper.create());
-        matrixHelper.multiply(this.matrix, mat, mat);
+        matrixHelper.multiply(mat, this.matrix, mat);
         if (this.parent)
         {
             matrixHelper.multiply(this.parent.matrix, mat, mat);
