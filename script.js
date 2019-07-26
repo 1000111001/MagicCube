@@ -7,10 +7,10 @@ onload = function () {
     canvas.width = 800;
     canvas.height = 600;
 
-    //输出测试数据用
-    var coordArea = document.getElementById("gl-text");
-
-    var keycode = null;
+    // debug信息
+    var debugCanvas = document.getElementById("text");
+    debugCanvas.width = 120;
+    debugCanvas.height = 20;
 
     //鼠标相关变量
     var deltaX = 0;
@@ -20,7 +20,7 @@ onload = function () {
 
     //注册鼠标事件
     var MBUTTON;
-    coordArea.addEventListener("contextmenu", function (e) { e.preventDefault(); });   //屏蔽右键菜单
+    debugCanvas.addEventListener("contextmenu", function (e) { e.preventDefault(); });   //屏蔽右键菜单
     canvas.addEventListener("contextmenu", function (e) { e.preventDefault(); });   //屏蔽右键菜单
     canvas.addEventListener('mousemove', handleMouseMove, false);
     canvas.addEventListener('mousedown', handleMouseDown, false);
@@ -53,40 +53,8 @@ onload = function () {
     // 顶点着色器和片段着色器的生成 
     var v_shader = wgl.create_shader('vshader');
     var f_shader = wgl.create_shader('fshader');
-
     // 程序对象的生成和连接
     var prg = wgl.create_program(v_shader, f_shader);
-
-    // attributeLocation的获取
-    var attLocation = new Array();
-    attLocation[0] = gl.getAttribLocation(prg, 'position');
-    attLocation[1] = gl.getAttribLocation(prg, 'color');
-    attLocation[2] = gl.getAttribLocation(prg, 'normal');
-
-    // 将元素数attribute保存到数组中
-    var attStride = new Array();
-    attStride[0] = 3;
-    attStride[1] = 4;
-    attStride[2] = 3;
-
-    // 获取uniformLocation并保存到数组中  
-    var uniLocation = new Array();
-    uniLocation[0] = gl.getUniformLocation(prg, 'mMatrix');
-    uniLocation[1] = gl.getUniformLocation(prg, 'invMatrix');
-    uniLocation[2] = gl.getUniformLocation(prg, 'lightDirection');
-    uniLocation[3] = gl.getUniformLocation(prg, 'vpMatrix');
-    uniLocation[4] = gl.getUniformLocation(prg, 'switchs');
-
-    // 平行光源的方向  
-    var lightDirection = [-0.5, 1.0, 0.5];
-    // 平行光源开关
-    var switchs = [0, 0, 0];
-
-    var gaptext = document.getElementById("gap");
-
-    document.getElementById('light').checked = "true";
-    document.getElementById('depth').checked = "true";
-    gaptext.value = "3";
 
     // init cubes
     var cubeCenter = [0.0, 0.0, 0.0];
@@ -98,8 +66,7 @@ onload = function () {
         cube.buffers = {};
     }
 
-    var textCanvas = document.getElementById("text");
-    var text_ctx = textCanvas.getContext("2d");
+    var text_ctx = debugCanvas.getContext("2d");
     text_ctx.font = "15pt Calibri";
     function renderFps(fps, drawcall) {
         text_ctx.clearRect(0, 0, text_ctx.canvas.width, text_ctx.canvas.height);
@@ -279,18 +246,6 @@ onload = function () {
             rolldetail *= 1.0666;
         else             //放大
             rolldetail /= 1.0666;
-    }
-
-    function _write(format, str) {
-        coordArea.innerHTML = format + str + '<br>';
-    }
-
-    function writeln(format, str) {
-        coordArea.innerHTML += format + str + '<br>';
-    }
-
-    function clearCoordarea() {
-        coordArea.innerHTML = null;;
     }
 
     //客户端坐标转canvas坐标
