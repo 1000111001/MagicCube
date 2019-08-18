@@ -80,6 +80,7 @@ function matIV(){
 		return new Float32Array(16);
 	};
 	this.identity = function(dest){
+		dest = dest || new Float32Array(16);
 		dest[0]  = 1; dest[1]  = 0; dest[2]  = 0; dest[3]  = 0;
 		dest[4]  = 0; dest[5]  = 1; dest[6]  = 0; dest[7]  = 0;
 		dest[8]  = 0; dest[9]  = 0; dest[10] = 1; dest[11] = 0;

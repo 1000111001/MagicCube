@@ -195,7 +195,7 @@ onload = function () {
                 cubePos = [cubeMatrix[12], cubeMatrix[13], cubeMatrix[14]];
                 for (let j = 0; j < 3; ++j)
                 {
-                    if (Math.abs(cubePos[j] - hitCubePos[j]) < 0.001)
+                    if (c.id[j] == hitCube.id[j])
                     {
                         dragGroups[j].push(c);
                     }

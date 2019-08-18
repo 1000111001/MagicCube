@@ -21,6 +21,7 @@ function Mcube(Morder, Mcenter, Msize) {
 	this.blue   = [0.0, 0.0, 1.0, 1.0];
 	this.black  = [0.015, 0.015, 0.015, 1.0];
 
+	this.dimension = Morder;
 	this.cubes = [];
 	let bsize = Msize;
 	let middle = (Morder - 1) / 2;
@@ -68,5 +69,14 @@ function Mcube(Morder, Mcenter, Msize) {
 		let rot = matrixHelper.identity(matrixHelper.create());
 		matrixHelper.rotate(rot, angle * Math.PI / 2, normal, rot);
 		matrixHelper.multiply(rot, cube.m, cube.m);
+
+		let e = (this.dimension - 1) / 2;
+		let m = matrixHelper.translate(matrixHelper.identity(), cube.id, []);
+		let temp = matrixHelper.translate(matrixHelper.identity(), [-e, -e, -e], []);
+		matrixHelper.multiply(temp, m, m);
+		matrixHelper.multiply(rot, m, m);
+		temp = matrixHelper.translate(matrixHelper.identity(), [e, e, e], []);
+		matrixHelper.multiply(temp, m, m);
+		cube.id = m.slice(-4,-1).map(Math.round);
 	}
 }
