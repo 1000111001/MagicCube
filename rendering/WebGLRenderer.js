@@ -78,7 +78,7 @@ class WebGLRenderer {
 
             // 视图x投影坐标变换矩阵
             matIV.lookAt(camera.position, camera.target, [0, 1, 0], vMatrix);
-            matIV.perspective(45, 800 / 600, 0.1, 100, pMatrix);
+            matIV.perspective(45, canvas.width / canvas.height, 0.1, 100, pMatrix);
             matIV.multiply(pMatrix, vMatrix, vpMatrix);
             matIV.multiply(vpMatrix, mMatrix, mvpMatrix);
 

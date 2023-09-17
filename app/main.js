@@ -1,33 +1,38 @@
 let camera = { position: [0.0, 4.0, 12.0], target: [0.0, 0.0, 0.0] };
 
-onload = function () {
-    // canvas对象获取
+class Debugger {
+    constructor() {
+        var uiPanel = document.querySelector('#ui');
+        uiPanel.addEventListener("contextmenu", function (e) { e.preventDefault(); });   //屏蔽右键菜单
+    }
+    
+    renderFps(fps, drawcall) {
+        const dpr = window.devicePixelRatio;
+        document.body.style.fontSize = `${15 / dpr}px`;
+        document.querySelector('#info').textContent = `Debug Info
+---------+------------
+fps      | ${fps}
+drawcall | ${drawcall}`;
+    }
+};
+
+(function() {
     var canvas = document.getElementById('canvas');
-    canvas.width = 800;
-    canvas.height = 600;
+    var debugCanvas = new Debugger();
+    debugCanvas.renderFps(0, 0);
 
-    // debug信息
-    var debugCanvas = document.getElementById("text");
-    debugCanvas.width = 120;
-    debugCanvas.height = 20;
-
-    //鼠标相关变量
     var deltaX = 0;
     var deltaY = 0;
     var canvasx = 0;
     var canvasy = 0;
 
-    //注册鼠标事件
     var MBUTTON;
-    debugCanvas.addEventListener("contextmenu", function (e) { e.preventDefault(); });   //屏蔽右键菜单
     canvas.addEventListener("contextmenu", function (e) { e.preventDefault(); });   //屏蔽右键菜单
     canvas.addEventListener('mousemove', handleMouseMove, false);
     canvas.addEventListener('mousedown', handleMouseDown, false);
     canvas.addEventListener('mouseup', handleMouseUp, false);
     if (canvas.addEventListener) {
         canvas.addEventListener('DOMMouseScroll', scrollFunc, false);
-    } else {
-        test();
     }
 
     //鼠标操作相关变量
@@ -54,23 +59,13 @@ onload = function () {
         cube.buffers = {};
     }
 
-    var text_ctx = debugCanvas.getContext("2d");
-    text_ctx.font = "15pt Calibri";
-    function renderFps(fps, drawcall) {
-        text_ctx.clearRect(0, 0, text_ctx.canvas.width, text_ctx.canvas.height);
-
-        let fpsMsg = fps + " fps";
-        let drawcallMsg = drawcall + " dc";
-        fpsMsg += ('\n' + drawcallMsg);
-        text_ctx.fillText(fpsMsg, 10, 20);
-    }
-
     let renderer = new WebGLRenderer(canvas);
     let previousDate = new Date().getTime();
     let frames = 0;
     // 主循环
     function gameLoop() {
-
+        resizeCanvasToDisplaySize(canvas);
+        context.viewport(0, 0, context.canvas.width, context.canvas.height);
         renderer.render(camera, cubes);
 
         // Fps
@@ -78,12 +73,24 @@ onload = function () {
         var now = new Date().getTime();
         if (now > previousDate + 1000) {
             var currentFps = Math.round(frames * 1000.0 / (now - previousDate));
-            renderFps(currentFps, renderer.drawcall);
+            debugCanvas.renderFps(currentFps, renderer.drawcall);
             previousDate = now;
             frames = 0;
         }
     }
     setInterval(gameLoop, 1000 / 60);
+
+    function resizeCanvasToDisplaySize(canvas) {
+      const displayWidth  = canvas.clientWidth;
+      const displayHeight = canvas.clientHeight;
+      const needResize = canvas.width  !== displayWidth ||
+                         canvas.height !== displayHeight;
+      if (needResize) {
+        canvas.width  = displayWidth;
+        canvas.height = displayHeight;
+      }
+      return needResize;
+    }
 
     let hitCube = null;
     let dragDir;
@@ -112,8 +119,10 @@ onload = function () {
 
             var newRotationMatrix = matIV.create();
             matIV.identity(newRotationMatrix);
-            matIV.rotate(newRotationMatrix, deltaX * Math.PI / 400, [0, 1, 0], newRotationMatrix);
-            matIV.rotate(newRotationMatrix, deltaY * Math.PI / 400, [1, 0, 0], newRotationMatrix);
+            const dpr = window.devicePixelRatio;
+            const dragSpeed = 1 / (400 / dpr);
+            matIV.rotate(newRotationMatrix, deltaX * Math.PI * dragSpeed, [0, 1, 0], newRotationMatrix);
+            matIV.rotate(newRotationMatrix, deltaY * Math.PI * dragSpeed, [1, 0, 0], newRotationMatrix);
 
             matIV.multiply(newRotationMatrix, magicCube.matrix, magicCube.matrix);
         }
@@ -122,10 +131,9 @@ onload = function () {
         if (MBUTTON == 0) {
             if (hitCube == null) return;
 
-            let v = [deltaY / 2, deltaX / 2, 0];
-            // let inverseMat = [];
-            // matIV.inverse(mcube.matrix, inverseMat);
-            // matIV.multiplyVec3(inverseMat, v, v);
+            const dpr = window.devicePixelRatio;
+            const dragSpeed = 1 / (2 / dpr);
+            let v = [deltaY * dragSpeed, deltaX * dragSpeed, 0];
             
             let groups = dragGroups;
             var ndir;
@@ -247,15 +255,15 @@ onload = function () {
     function screenPosToWorld(loc) {
         canvasx = parseInt(loc.x);
         canvasy = parseInt(loc.y);
-        let x = (2 * canvasx) / 800 - 1;
-        let y = 1 - (2 * canvasy) / 600;    
+        let x = (2 * canvasx) / canvas.width - 1;
+        let y = 1 - (2 * canvasy) / canvas.height;    
         let z = 1;
         
         let matrix = {};
         let vMatrix = matIV.identity(matIV.create());
         let pMatrix = matIV.identity(matIV.create());
         matIV.lookAt(camera.position, camera.target, [0, 1, 0], vMatrix);
-        matIV.perspective(45, 800 / 600, 0.1, 100, pMatrix);
+        matIV.perspective(45, canvas.width / canvas.height, 0.1, 100, pMatrix);
         
         let ray_clip = [x, y, z, 1];
         matIV.inverse(pMatrix, matrix);
@@ -270,4 +278,4 @@ onload = function () {
         }
         return ray_world;
     }
-};
+})();
