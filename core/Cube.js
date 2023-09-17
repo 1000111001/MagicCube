@@ -1,10 +1,18 @@
+class CubeFace {
+    constructor (size) {
+        this.vertices = [
+            
+        ]
+    }
+}
+
 class Cube {
     constructor(size) {
         this.position = [0, 0, 0];
         this.scale = [0, 0, 0];
         this.rotation = matIV.identity(matIV.create());;
         this.matrix = matIV.identity(matIV.create());
-        this.m = matIV.identity(matIV.create());
+        this.localMatrix = matIV.identity(matIV.create());
 
         let halfEdge = size / 2;
         this.vertices = [
@@ -102,7 +110,7 @@ class Cube {
         this.colors = colors;
     }
     applyMatrix(matrix) {
-        matIV.multiply(matrix, this.m, this.m);
+        matIV.multiply(matrix, this.localMatrix, this.localMatrix);
         matIV.multiply(matrix, this.matrix, this.matrix);
     }
     getMatrix() {

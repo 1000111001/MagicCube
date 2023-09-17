@@ -63,14 +63,22 @@ class MagicCube {
 			let cube = group[i];
 			let rot = matIV.identity(matIV.create());
 			matIV.rotate(rot, Math.PI * angle / 180.0, normal, rot);
-			matIV.multiply(rot, cube.m, cube.matrix);
+			matIV.multiply(rot, cube.localMatrix, cube.matrix);
 		}
 	};
+
+	onRotateDone (group, normal, r) {
+		for(let i = 0; i < group.length; i++)
+        {
+            let o = group[i];
+            this.rotateCube(o, normal, r)
+        }
+	}
 
 	rotateCube (cube, normal, angle) {
 		let rot = matIV.identity(matIV.create());
 		matIV.rotate(rot, angle * Math.PI / 2, normal, rot);
-		matIV.multiply(rot, cube.m, cube.m);
+		matIV.multiply(rot, cube.localMatrix, cube.localMatrix);
 
 		let e = (this.dimension - 1) / 2;
 		let matrix = matIV.translate(matIV.identity(), cube.id, []);

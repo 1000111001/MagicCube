@@ -162,6 +162,8 @@ onload = function () {
 
         let minDistance = 99999;
         hitCube = null;
+        dragRots = null;
+        
         for (let i = 0; i < magicCube.cubes.length; ++i)
         {
             let hit = ray.intersectCube(magicCube.cubes[i]);
@@ -170,7 +172,7 @@ onload = function () {
                 hitCube = hit.obj;
             }
         }
-        // console.log(hitCube);
+        // console.log(hitCube.id);
         if (hitCube != null)
         {
             dragGroups=[[],[],[]]
@@ -203,17 +205,14 @@ onload = function () {
 
         if (hitCube == null) return;
         if (dragGroups == null) return;
+        if (dragRots == null) return;
         
         let angle = 180 * dragRots[dragDir] / Math.PI;
         let group = dragGroups[dragDir];
         let normal = [0, 0, 0];
         normal[dragDir] = 1;
         let r = Math.round(dragRots[dragDir]/90)%4;
-        for(let i = 0; i < group.length; i++)
-        {
-            let o = group[i];
-            magicCube.rotateCube(o, normal, r)
-        }
+        magicCube.onRotateDone(group, normal, r);
         if(r = dragRots[dragDir]%=90)
         {
             if(Math.abs(r)>45)
