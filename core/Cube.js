@@ -1,12 +1,7 @@
-class CubeFace {
-    constructor (size) {
-        this.vertices = [
-            
-        ]
-    }
-}
-
 class Cube {
+
+    static sharedMesh =  ObjParser.parseOBJ(cubeMeshStr);
+
     constructor(size) {
         this.position = [0, 0, 0];
         this.scale = [0, 0, 0];
@@ -15,86 +10,10 @@ class Cube {
         this.localMatrix = matIV.identity(matIV.create());
 
         let halfEdge = size / 2;
-        this.vertices = [
-            //前表面
-            -halfEdge, +halfEdge, +halfEdge,
-            +halfEdge, +halfEdge, +halfEdge,
-            +halfEdge, -halfEdge, +halfEdge,
-            -halfEdge, -halfEdge, +halfEdge,
-
-            //后表面
-            -halfEdge, +halfEdge, -halfEdge,
-            -halfEdge, -halfEdge, -halfEdge,
-            +halfEdge, -halfEdge, -halfEdge,
-            +halfEdge, +halfEdge, -halfEdge,
-
-            //左表面
-            -halfEdge, +halfEdge, -halfEdge,
-            -halfEdge, +halfEdge, +halfEdge,
-            -halfEdge, -halfEdge, +halfEdge,
-            -halfEdge, -halfEdge, -halfEdge,
-
-            //右表面
-            +halfEdge, +halfEdge, +halfEdge,
-            +halfEdge, +halfEdge, -halfEdge,
-            +halfEdge, -halfEdge, -halfEdge,
-            +halfEdge, -halfEdge, +halfEdge,
-
-            //上表面
-            +halfEdge, +halfEdge, +halfEdge,
-            -halfEdge, +halfEdge, +halfEdge,
-            -halfEdge, +halfEdge, -halfEdge,
-            +halfEdge, +halfEdge, -halfEdge,
-
-            //下表面
-            -halfEdge, -halfEdge, +halfEdge,
-            +halfEdge, -halfEdge, +halfEdge,
-            +halfEdge, -halfEdge, -halfEdge,
-            -halfEdge, -halfEdge, -halfEdge, //5
-        ];
-
-        this.normals = [
-            //front
-            0, 0, 1,
-            0, 0, 1,
-            0, 0, 1,
-            0, 0, 1,
-            //back
-            0, 0, -1,
-            0, 0, -1,
-            0, 0, -1,
-            0, 0, -1,
-            //left
-            -1, 0, 0,
-            -1, 0, 0,
-            -1, 0, 0,
-            -1, 0, 0,
-            //right
-            1, 0, 0,
-            1, 0, 0,
-            1, 0, 0,
-            1, 0, 0,
-            //top
-            0, 1, 0,
-            0, 1, 0,
-            0, 1, 0,
-            0, 1, 0,
-            //bottom
-            0, -1, 0,
-            0, -1, 0,
-            0, -1, 0,
-            0, -1, 0
-        ];
-
-        this.indices = [
-            0, 1, 2, 0, 2, 3,
-            4, 5, 6, 4, 6, 7,
-            8, 9, 10, 8, 10, 11,
-            12, 13, 14, 12, 14, 15,
-            16, 17, 18, 16, 18, 19,
-            20, 21, 22, 20, 22, 23,
-        ];
-
+        this.vertices = Cube.sharedMesh.position;
+        this.normals = Cube.sharedMesh.normal;
+        this.indices = Array.from({length: Cube.sharedMesh.position.length}, (val, i) => i);
+        
         this.box = {
             min: { x: -halfEdge, y: -halfEdge, z: -halfEdge },
             max: { x: halfEdge, y: halfEdge, z: halfEdge },
@@ -107,7 +26,19 @@ class Cube {
         this.applyMatrix(mat);
     }
     SetColors(colors) {
-        this.colors = colors;
+        this.colors = [];
+        for (let i = 0; i < this.vertices.length - 2; i += 3) {
+            const nx = this.normals[i];
+            const ny = this.normals[i + 1];
+            const nz = this.normals[i + 2];
+            if (nz == 1) this.colors = this.colors.concat(colors[0]);
+            else if (nz == -1) this.colors = this.colors.concat(colors[1]);
+            else if (nx == -1) this.colors = this.colors.concat(colors[2]);
+            else if (nx == 1) this.colors = this.colors.concat(colors[3]);
+            else if (ny == 1) this.colors = this.colors.concat(colors[4]);
+            else if (ny == -1) this.colors = this.colors.concat(colors[5]);
+            else this.colors = this.colors.concat(MagicCube.black);
+        }
     }
     applyMatrix(matrix) {
         matIV.multiply(matrix, this.localMatrix, this.localMatrix);

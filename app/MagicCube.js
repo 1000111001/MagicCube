@@ -1,52 +1,39 @@
-/*-------------------------------------------
-数据成员列表
-this.blocks           方块数量
-this.blocksize        方块大小
-this.Bcenter          方块中心
-this.blockPos         坐标数据
-this.colors           颜色数据
 
-
----------------------------------------------*/
 class MagicCube {
-	constructor(Morder, Mcenter, Msize) {
 
-		this.position = [0, 0, 0];
+	static red = [1.0, 0.0, 0.0, 1.0];
+	static yellow = [1.0, 1.0, 0.0, 1.0];
+	static orange = [1.0, 0.647, 0.0, 1.0];
+	static white = [0.99, 0.99, 0.99, 1.0];
+	static green = [0.0, 1.0, 0.0, 1.0];
+	static blue = [0.0, 0.0, 1.0, 1.0];
+	static black = [0.015, 0.015, 0.015, 1.0];
+
+	constructor(order, center, cubeSize) {
+
+		this.position = center;
 		this.matrix = matIV.identity(matIV.create());
+		matIV.translate(this.matrix, this.position, this.matrix);
 
-		this.red = [1.0, 0.0, 0.0, 1.0];
-		this.yellow = [1.0, 1.0, 0.0, 1.0];
-		this.orange = [1.0, 0.647, 0.0, 1.0];
-		this.white = [0.99, 0.99, 0.99, 1.0];
-		this.green = [0.0, 1.0, 0.0, 1.0];
-		this.blue = [0.0, 0.0, 1.0, 1.0];
-		this.black = [0.015, 0.015, 0.015, 1.0];
-
-		this.dimension = Morder;
+		this.dimension = order;
 		this.cubes = [];
-		let bsize = Msize;
-		let middle = (Morder - 1) / 2;
-		for (let x = 0; x < Morder; ++x) {
-			for (let y = 0; y < Morder; ++y) {
-				for (let z = 0; z < Morder; ++z) {
+		let bsize = cubeSize;
+		let middle = (order - 1) / 2;
+		for (let x = 0; x < order; ++x) {
+			for (let y = 0; y < order; ++y) {
+				for (let z = 0; z < order; ++z) {
 					let cube = new Cube(bsize);
 
-					let size = 1.1 * bsize;
+					let size = 1.12 * bsize;
 					cube.setPosition([size * (x - middle), size * (y - middle), size * (z - middle)]);
 
-					let colors = [];
-					if (z == Morder - 1) for (var j = 0; j < 4; j++) colors = colors.concat(this.red);
-					else for (var j = 0; j < 4; j++) colors = colors.concat(this.black);
-					if (z == 0) for (var j = 0; j < 4; j++) colors = colors.concat(this.orange);
-					else for (var j = 0; j < 4; j++) colors = colors.concat(this.black);
-					if (x == 0) for (var j = 0; j < 4; j++) colors = colors.concat(this.yellow);
-					else for (var j = 0; j < 4; j++) colors = colors.concat(this.black);
-					if (x == Morder - 1) for (var j = 0; j < 4; j++) colors = colors.concat(this.white);
-					else for (var j = 0; j < 4; j++) colors = colors.concat(this.black);
-					if (y == Morder - 1) for (var j = 0; j < 4; j++) colors = colors.concat(this.green);
-					else for (var j = 0; j < 4; j++) colors = colors.concat(this.black);
-					if (y == 0) for (var j = 0; j < 4; j++) colors = colors.concat(this.blue);
-					else for (var j = 0; j < 4; j++) colors = colors.concat(this.black);
+					let colors = new Array();
+					if (z == order - 1) colors.push(MagicCube.red); else colors.push(MagicCube.black);
+					if (z == 0) colors.push(MagicCube.orange); else colors.push(MagicCube.black);
+					if (x == 0) colors.push(MagicCube.yellow); else colors.push(MagicCube.black);
+					if (x == order - 1) colors.push(MagicCube.white); else colors.push(MagicCube.black);
+					if (y == order - 1) colors.push(MagicCube.green); else colors.push(MagicCube.black);
+					if (y == 0) colors.push(MagicCube.blue); else colors.push(MagicCube.black);
 					cube.SetColors(colors);
 
 					cube.id = [x, y, z];
