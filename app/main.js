@@ -1,4 +1,3 @@
-matrixHelper = new matIV();
 let camera = { position: [0.0, 4.0, 12.0], target: [0.0, 0.0, 0.0] };
 
 onload = function () {
@@ -31,38 +30,27 @@ onload = function () {
         test();
     }
 
-    // matIV对象生成，矩阵相关处理对象
-    var m = new matIV();
-
     //鼠标操作相关变量
     var lastMouseX = 0;
     var lastMouseY = 0;
     var mouseDown = false;
-    var rightmouseRotationMatrix = m.create();
-    m.identity(rightmouseRotationMatrix);
-
-    //旋转方块用临时矩阵
-    var t = m.create();
-    m.identity(t);
+    var rightmouseRotationMatrix = matIV.create();
+    matIV.identity(rightmouseRotationMatrix);
 
     // webgl的context获取
-    var gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-
-    var wgl = new WebGL(gl);
-
-    // 顶点着色器和片段着色器的生成 
-    var v_shader = wgl.create_shader('vshader');
-    var f_shader = wgl.create_shader('fshader');
-    // 程序对象的生成和连接
-    var prg = wgl.create_program(v_shader, f_shader);
+    var context = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    var webgl = new WebGL(context);
+    var v_shader = webgl.create_shader('vshader');
+    var f_shader = webgl.create_shader('fshader');
+    var program = webgl.create_program(v_shader, f_shader);
 
     // init cubes
     var cubeCenter = [0.0, 0.0, 0.0];
-    var mcube = new Mcube(3, cubeCenter, 0.9);
-    let cubes = mcube.cubes;
-    for (let i = 0; i < mcube.cubes.length; i++) {
-        let cube = mcube.cubes[i];
-        cube.program = prg;
+    var magicCube = new MagicCube(3, cubeCenter, 0.9);
+    let cubes = magicCube.cubes;
+    for (let i = 0; i < magicCube.cubes.length; i++) {
+        let cube = magicCube.cubes[i];
+        cube.program = program;
         cube.buffers = {};
     }
 
@@ -122,12 +110,12 @@ onload = function () {
             lastMouseX = newX;
             lastMouseY = newY;
 
-            var newRotationMatrix = m.create();
-            m.identity(newRotationMatrix);
-            m.rotate(newRotationMatrix, deltaX * Math.PI / 400, [0, 1, 0], newRotationMatrix);
-            m.rotate(newRotationMatrix, deltaY * Math.PI / 400, [1, 0, 0], newRotationMatrix);
+            var newRotationMatrix = matIV.create();
+            matIV.identity(newRotationMatrix);
+            matIV.rotate(newRotationMatrix, deltaX * Math.PI / 400, [0, 1, 0], newRotationMatrix);
+            matIV.rotate(newRotationMatrix, deltaY * Math.PI / 400, [1, 0, 0], newRotationMatrix);
 
-            matrixHelper.multiply(newRotationMatrix, mcube.matrix, mcube.matrix);
+            matIV.multiply(newRotationMatrix, magicCube.matrix, magicCube.matrix);
         }
 
         //鼠标左键
@@ -136,25 +124,25 @@ onload = function () {
 
             let v = [deltaY / 2, deltaX / 2, 0];
             // let inverseMat = [];
-            // matrixHelper.inverse(mcube.matrix, inverseMat);
-            // matrixHelper.multiplyVec3(inverseMat, v, v);
+            // matIV.inverse(mcube.matrix, inverseMat);
+            // matIV.multiplyVec3(inverseMat, v, v);
             
             let groups = dragGroups;
             var ndir;
-            let m = matrixHelper.translate(matrixHelper.identity([]), v, []);
-            let mpos = matrixHelper.multiply(matrixHelper.inverse(mcube.matrix, []), m, []).slice(-4,-1); // 将转动向量变换到mcube坐标系中
+            let m = matIV.translate(matIV.identity([]), v, []);
+            let mpos = matIV.multiply(matIV.inverse(magicCube.matrix, []), m, []).slice(-4,-1); // 将转动向量变换到mcube坐标系中
             let group=groups[o=mpos.map(Math.abs),ndir=o.indexOf(Math.max.apply(Math,o))];
 
             let normal = [0, 0, 0];
             normal[ndir] = 1;
-            mcube.rotateGroup(group, normal, mpos[ndir]);
+            magicCube.rotateGroup(group, normal, mpos[ndir]);
             
             if(dragDir != void 0 &&  dragDir != ndir)
             {
-                mcube.rotateGroup(groups[dragDir], normal, 0);
+                magicCube.rotateGroup(groups[dragDir], normal, 0);
             }
             if(group = groups[dragDir = ndir])
-                mcube.rotateGroup(group, normal, mpos[dragDir]);
+                magicCube.rotateGroup(group, normal, mpos[dragDir]);
             dragRots = mpos;
         }
     }
@@ -174,9 +162,9 @@ onload = function () {
 
         let minDistance = 99999;
         hitCube = null;
-        for (let i = 0; i < mcube.cubes.length; ++i)
+        for (let i = 0; i < magicCube.cubes.length; ++i)
         {
-            let hit = ray.intersectCube(mcube.cubes[i]);
+            let hit = ray.intersectCube(magicCube.cubes[i]);
             if (hit != null && hit.t < minDistance) {
                 minDistance = hit.t;
                 hitCube = hit.obj;
@@ -188,9 +176,9 @@ onload = function () {
             dragGroups=[[],[],[]]
             let hitCubeMatrix = hitCube.matrix;
             hitCubePos = [hitCubeMatrix[12], hitCubeMatrix[13], hitCubeMatrix[14]];
-            for (let i = 0; i < mcube.cubes.length; ++i)
+            for (let i = 0; i < magicCube.cubes.length; ++i)
             {
-                let c = mcube.cubes[i];
+                let c = magicCube.cubes[i];
                 let cubeMatrix = c.matrix;
                 cubePos = [cubeMatrix[12], cubeMatrix[13], cubeMatrix[14]];
                 for (let j = 0; j < 3; ++j)
@@ -224,7 +212,7 @@ onload = function () {
         for(let i = 0; i < group.length; i++)
         {
             let o = group[i];
-            mcube.rotateCube(o, normal, r)
+            magicCube.rotateCube(o, normal, r)
         }
         if(r = dragRots[dragDir]%=90)
         {
@@ -235,7 +223,7 @@ onload = function () {
         }
         (function callee(){
             if(Math.abs(r*=0.7) < 0.5) r=0;
-            mcube.rotateGroup(group, normal, r);
+            magicCube.rotateGroup(group, normal, r);
             if(r)setTimeout(callee,16);
         })();
     }
@@ -265,16 +253,16 @@ onload = function () {
         let z = 1;
         
         let matrix = {};
-        let vMatrix = m.identity(m.create());
-        let pMatrix = m.identity(m.create());
-        m.lookAt(camera.position, camera.target, [0, 1, 0], vMatrix);
-        m.perspective(45, 800 / 600, 0.1, 100, pMatrix);
+        let vMatrix = matIV.identity(matIV.create());
+        let pMatrix = matIV.identity(matIV.create());
+        matIV.lookAt(camera.position, camera.target, [0, 1, 0], vMatrix);
+        matIV.perspective(45, 800 / 600, 0.1, 100, pMatrix);
         
         let ray_clip = [x, y, z, 1];
-        matrixHelper.inverse(pMatrix, matrix);
-        let ray_eye = matrixHelper.multiplyVec4(matrix, ray_clip);
-        matrixHelper.inverse(vMatrix, matrix);
-        let ray_world = matrixHelper.multiplyVec4(matrix, ray_eye);
+        matIV.inverse(pMatrix, matrix);
+        let ray_eye = matIV.multiplyVec4(matrix, ray_clip);
+        matIV.inverse(vMatrix, matrix);
+        let ray_world = matIV.multiplyVec4(matrix, ray_eye);
         if (ray_world[3] != 0)  
         {  
             ray_world[0] /= ray_world[3];  

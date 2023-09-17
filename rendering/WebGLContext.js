@@ -1,4 +1,5 @@
-function WebGLContext()
-{
-    
+class WebGLContext {
+    constructor() {
+
+    }
 }
