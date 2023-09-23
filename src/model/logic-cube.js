@@ -89,11 +89,14 @@ export class LogicCube {
         else if (normal[1] == -1) {
             colorTrans = clockwise ? this.colorTransD: this.colorTransU;
         }
-        this.Rot(clockwise, normal, b => {
-            if (normal[0] != 0) return b.position.x == j;
-            else if (normal[1] != 0) return b.position.y == j;
-            else if (normal[2] != 0) return b.position.z == j;
-        }, colorTrans);
+        let step = Math.abs(r);
+        for (let i = 0; i < step; ++i) {
+            this.Rot(clockwise, normal, b => {
+                if (normal[0] != 0) return b.position.x == j;
+                else if (normal[1] != 0) return b.position.y == j;
+                else if (normal[2] != 0) return b.position.z == j;
+            }, colorTrans);
+        }
     }
 
     L() { this.Rot(true, [-1, 0, 0], b => b.position.x == -1, this.colorTransL); }
