@@ -300,13 +300,14 @@ function handleMouseUp(e: any) {
 	const normal = [0, 0, 0]
 	normal[dragDir] = 1
 	let r = Math.round(dragRots[dragDir] / 90) % 4
-	magicCube.onRotateDone(group, normal, r)
+	magicCube.onRotateDone(group, normal, r);
+	if (r != 0) {
+		logicCube.OnRotate(normal, r, hitCube.id);
+		drawExpandedView();
+	}
 	if ((r = dragRots[dragDir] %= 90)) {
 		if (Math.abs(r) > 45) {
 			r = r < 0 ? 90 - Math.abs(r) : Math.abs(r) - 90;
-
-			logicCube.OnRotate(normal, r, hitCube.position);
-			drawExpandedView();
 		}
 	}
 	(function callee() {

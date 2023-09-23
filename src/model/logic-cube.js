@@ -65,7 +65,7 @@ export class LogicCube {
     }
 
     OnRotate(normal, r, index) {
-        let clockwise = r > 0;
+        let clockwise = r < 0;
         let colorTrans;
         let j = 0;
         if (normal[0] == -1) {
@@ -73,18 +73,18 @@ export class LogicCube {
         } 
         else if (normal[0] == 1) {
             colorTrans = clockwise ? this.colorTransR: this.colorTransL;
-            j = Math.round(index[0]);
+            j = Math.round(index[0] - 1);
         }
         else if (normal[2] == 1) {
             colorTrans = clockwise ? this.colorTransF: this.colorTransB;
-            j = Math.round(index[2]);
+            j = Math.round(index[2] - 1);
         }
         else if (normal[2] == -1) {
             colorTrans = clockwise ? this.colorTransB: this.colorTransF;
         }
         else if (normal[1] == 1) {
             colorTrans = clockwise ? this.colorTransU: this.colorTransD;
-            j = Math.round(index[1]);
+            j = Math.round(index[1] - 1);
         }
         else if (normal[1] == -1) {
             colorTrans = clockwise ? this.colorTransD: this.colorTransU;
