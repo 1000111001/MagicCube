@@ -75,7 +75,7 @@ mat1在左，mat2在右，相乘后的结果保存到dest中。
 求矩阵的逆矩阵，mat是原始矩阵，求的的逆矩阵保存到dest中。
 */
 
-class matIV {
+export class matIV {
 	constructor() {
 	}
 	static identity (dest) {

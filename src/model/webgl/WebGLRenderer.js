@@ -1,4 +1,5 @@
-class WebGLRenderer {
+import { matIV } from "../minMatrix";
+export class WebGLRenderer {
     constructor(canvas) {
 
         this.drawcall = 0;

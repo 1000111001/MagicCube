@@ -1,4 +1,4 @@
-class ObjParser {
+export class ObjParser {
     constructor () {
 
     }

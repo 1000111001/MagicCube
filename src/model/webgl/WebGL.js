@@ -1,4 +1,4 @@
-class WebGL {
+export class WebGL {
     constructor(context) {
         this.gl = context;
     }

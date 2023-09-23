@@ -1,5 +1,6 @@
-
-class MagicCube {
+import { Cube } from "./core/Cube";
+import { matIV } from "./minMatrix";
+export class MagicCube {
 
 	static red = [1.0, 0.0, 0.0, 1.0];
 	static yellow = [1.0, 1.0, 0.0, 1.0];

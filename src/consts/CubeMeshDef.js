@@ -1,4 +1,4 @@
-const cubeMeshStr = `# Blender 3.3.1
+export const cubeMeshStr = `# Blender 3.3.1
 # www.blender.org
 mtllib round_cube.mtl
 o Cube.001

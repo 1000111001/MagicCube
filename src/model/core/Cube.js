@@ -1,6 +1,10 @@
-class Cube {
+import { cubeMeshStr } from '../../consts/CubeMeshDef'
+import { ObjParser } from './ObjParser'
+import { matIV } from '../minMatrix';
+import { MagicCube } from '../MagicCube';
+export class Cube {
 
-    static sharedMesh =  ObjParser.parseOBJ(cubeMeshStr);
+    static sharedMesh = ObjParser.parseOBJ(cubeMeshStr);
 
     constructor(size) {
         this.position = [0, 0, 0];
@@ -12,8 +16,8 @@ class Cube {
         let halfEdge = size / 2;
         this.vertices = Cube.sharedMesh.position;
         this.normals = Cube.sharedMesh.normal;
-        this.indices = Array.from({length: Cube.sharedMesh.position.length}, (val, i) => i);
-        
+        this.indices = Array.from({ length: Cube.sharedMesh.position.length }, (val, i) => i);
+
         this.box = {
             min: { x: -halfEdge, y: -halfEdge, z: -halfEdge },
             max: { x: halfEdge, y: halfEdge, z: halfEdge },
