@@ -38,10 +38,10 @@ matIV.identity(rightmouseRotationMatrix)
 // webgl的context获取
 const context =
 	canvas?.getContext('webgl') || canvas?.getContext('experimental-webgl')
-const webgl = new WebGL(context)
-const v_shader = webgl.create_shader('vshader')
-const f_shader = webgl.create_shader('fshader')
-const program = webgl.create_program(v_shader, f_shader)
+const webgl = new WebGL(context);
+var vs = webgl.createVertexShader(getShaderSource('vshader'));
+var fs = webgl.createFragmentShader(getShaderSource('fshader'));
+var program = webgl.createProgram(vs, fs);
 
 // init cubes
 const cubeCenter = [0.0, 0.0, 0.0]
@@ -51,6 +51,12 @@ for (let i = 0; i < magicCube.cubes.length; i++) {
 	const cube = magicCube.cubes[i] as any
 	cube.program = program
 	cube.buffers = {}
+}
+
+function getShaderSource(id: string) {
+    var scriptElement = document.getElementById(id) as HTMLScriptElement;
+    if (!scriptElement) { return null; }
+    return scriptElement.text;
 }
 
 const renderer = new WebGLRenderer(canvas)
