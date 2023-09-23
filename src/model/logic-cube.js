@@ -64,32 +64,35 @@ export class LogicCube {
         return data;
     }
 
-    OnRotate(normal, r) {
+    OnRotate(normal, r, index) {
         let clockwise = r > 0;
         let colorTrans;
-        console.log(normal);
+        let j = 0;
         if (normal[0] == -1) {
             colorTrans = clockwise ? this.colorTransL : this.colorTransR;
         } 
         else if (normal[0] == 1) {
             colorTrans = clockwise ? this.colorTransR: this.colorTransL;
+            j = Math.round(index[0]);
         }
         else if (normal[2] == 1) {
             colorTrans = clockwise ? this.colorTransF: this.colorTransB;
+            j = Math.round(index[2]);
         }
         else if (normal[2] == -1) {
             colorTrans = clockwise ? this.colorTransB: this.colorTransF;
         }
         else if (normal[1] == 1) {
             colorTrans = clockwise ? this.colorTransU: this.colorTransD;
+            j = Math.round(index[1]);
         }
         else if (normal[1] == -1) {
             colorTrans = clockwise ? this.colorTransD: this.colorTransU;
         }
         this.Rot(clockwise, normal, b => {
-            if (normal[0] != 0) return b.position.x == normal[0];
-            else if (normal[1] != 0) return b.position.y == normal[1];
-            else if (normal[2] != 0) return b.position.z == normal[2];
+            if (normal[0] != 0) return b.position.x == j;
+            else if (normal[1] != 0) return b.position.y == j;
+            else if (normal[2] != 0) return b.position.z == j;
         }, colorTrans);
     }
 

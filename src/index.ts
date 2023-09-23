@@ -13,6 +13,7 @@ const debugCanvas = new Debugger()
 debugCanvas.renderFps(0, 0)
 
 let magicCube: MagicCube;
+let logicCube = new LogicCube();
 
 const pixiApp = new PIXI.Application<HTMLCanvasElement>({
     resizeTo: window,
@@ -32,7 +33,6 @@ document.body.appendChild(pixiApp.view);
 
 function drawExpandedView() {
 
-    let logicCube = new LogicCube();
     let data = logicCube.ToArray();
 
     let gridSize = 22;
@@ -303,14 +303,17 @@ function handleMouseUp(e: any) {
 	magicCube.onRotateDone(group, normal, r)
 	if ((r = dragRots[dragDir] %= 90)) {
 		if (Math.abs(r) > 45) {
-			r = r < 0 ? 90 - Math.abs(r) : Math.abs(r) - 90
+			r = r < 0 ? 90 - Math.abs(r) : Math.abs(r) - 90;
+
+			logicCube.OnRotate(normal, r, hitCube.position);
+			drawExpandedView();
 		}
 	}
-	;(function callee() {
+	(function callee() {
 		if (Math.abs((r *= 0.7)) < 0.5) r = 0
 		magicCube.rotateGroup(group, normal, r)
 		if (r) setTimeout(callee, 16)
-	})()
+	})();
 }
 
 function scrollFunc(e: any) {
