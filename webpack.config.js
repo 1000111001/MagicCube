@@ -6,7 +6,7 @@ const TerserWebpackPlugin = require('terser-webpack-plugin');
 
 module.exports = {
     entry: {
-        main: './src/index.js',
+        main: './src/index.ts',
     },
     output: {
         filename: "[name]_[chunkhash].js",
@@ -32,15 +32,9 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.js$/,
+                test: /\.(t|j)s$/,
+                use: "ts-loader",
                 exclude: /node_modules/,
-                use: {
-                    loader: 'babel-loader',
-                    options: {
-                        presets: ['@babel/preset-env'],
-                        plugins: []
-                    }
-                }
             },
             {
                 test: /\.css$/,
