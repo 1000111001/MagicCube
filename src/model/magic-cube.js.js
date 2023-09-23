@@ -1,5 +1,5 @@
+import { matIV } from '../libs/min-matrix';
 import { Cube } from './core/cube';
-import { matIV } from './min-matrix';
 export class MagicCube {
 	static red = [0.717, 0.070, 0.0, 1.0];
 	static yellow = [1.0, 0.835, 0.0, 1.0];

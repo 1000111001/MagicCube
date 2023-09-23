@@ -1,4 +1,4 @@
-import { matIV } from '../min-matrix'
+import { matIV } from '../../libs/min-matrix'
 export class Ray {
 	constructor(origin, direction) {
 		this.origin = origin !== undefined ? origin : new Vector3()

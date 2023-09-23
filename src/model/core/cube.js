@@ -1,6 +1,6 @@
 import { cubeMeshStr } from '../../consts/cube-mesh-def'
+import { matIV } from '../../libs/min-matrix'
 import { MagicCube } from '../magic-cube.js.js'
-import { matIV } from '../min-matrix'
 import { ObjParser } from './obj-parser'
 export class Cube {
 	static sharedMesh = ObjParser.parseOBJ(cubeMeshStr)
