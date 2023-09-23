@@ -6,7 +6,7 @@ class LogicBlock {
     }
 }
 
-class LogicCube {
+export class LogicCube {
     constructor() {
         this.blocks = []
 		for (let x = -1; x <= 1; ++x) {

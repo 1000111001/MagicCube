@@ -7,7 +7,10 @@ export class MagicCube {
 	static white = [0.99, 0.99, 0.99, 1.0];
 	static green = [0.0, 0.708, 0.282, 1.0];
 	static blue = [0.0, 0.275, 0.778, 1.0];
-	static black = [0.015, 0.015, 0.015, 1.0]
+	static black = [0.015, 0.015, 0.015, 1.0];
+	static colors = [
+		this.black, this.white, this.green, this.red, this.blue, this.orange, this.yellow,
+	];
 
 	constructor(order, center, cubeSize) {
 		this.position = center

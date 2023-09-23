@@ -1,6 +1,8 @@
-import './index.css'
+import './index.css';
 
-import { Debugger, MagicCube, matIV, Ray, WebGL, WebGLRenderer } from './model'
+import * as PIXI from 'pixi.js';
+import { Debugger, MagicCube, Ray, WebGL, WebGLRenderer, matIV } from './model';
+import { LogicCube } from './model/logic-cube';
 
 const camera = { position: [0.0, 4.0, 12.0], target: [0.0, 0.0, 0.0] }
 let hitCubePos
@@ -9,6 +11,68 @@ let rolldetail: any
 const canvas = document.getElementById('canvas') as HTMLCanvasElement
 const debugCanvas = new Debugger()
 debugCanvas.renderFps(0, 0)
+
+let magicCube: MagicCube;
+
+const pixiApp = new PIXI.Application<HTMLCanvasElement>({
+    resizeTo: window,
+    backgroundAlpha: 0.0,
+});
+pixiApp.renderer.view.style.position = "absolute";
+pixiApp.renderer.view.style.left = "0px";
+pixiApp.renderer.view.style.top = "0px";
+let expandedView = new PIXI.Graphics();
+expandedView.eventMode = 'static';
+expandedView.cursor = 'pointer';
+expandedView.on('pointerdown', function() {
+    
+});
+pixiApp.stage.addChild(expandedView);
+document.body.appendChild(pixiApp.view);
+
+function drawExpandedView() {
+
+    let logicCube = new LogicCube();
+    let data = logicCube.ToArray();
+
+    let gridSize = 22;
+    let o = [20, 85];
+    let space = 2;
+    expandedView.clear();
+    for (let i = 0; i < 3; ++i) {
+        for (let j = 0; j < 3; ++j) {
+            let color = MagicCube.colors[data[0][j][i]];
+            expandedView.lineStyle(1, MagicCube.black, 1);
+            expandedView.beginFill(color, 1);
+            expandedView.drawRect(o[0] + (i + 3) * (gridSize + space), o[1] + (j + 1) * (gridSize + space), gridSize, gridSize);
+            expandedView.endFill();
+        }
+    }
+    for (let i = 0; i < 12; ++i) {
+        for (let j = 3; j < 6; ++j) {
+            let color = MagicCube.colors[data[Math.floor(i/3) + 1][j - 3][i % 3]];
+            expandedView.lineStyle(1, MagicCube.black, 1);
+            expandedView.beginFill(color, 1);
+            expandedView.drawRect(o[0] + (i + 0) * (gridSize + space), o[1] + (j + 1) * (gridSize + space), gridSize, gridSize);
+            expandedView.endFill();
+        }
+    }
+    for (let i = 0; i < 3; ++i) {
+        for (let j = 6; j < 9; ++j) {
+            let color = MagicCube.colors[data[5][j - 6][i]];
+            expandedView.lineStyle(1, MagicCube.black, 1);
+            expandedView.beginFill(color, 1);
+            expandedView.drawRect(o[0] + (i + 3) * (gridSize + space), o[1] + (j + 1) * (gridSize + space), gridSize, gridSize);
+            expandedView.endFill();
+        }
+    }
+}
+
+pixiApp.renderer.view.addEventListener("contextmenu", function (e: any) { e.preventDefault(); });   //屏蔽右键菜单
+pixiApp.renderer.view.addEventListener('mousemove', handleMouseMove, false);
+pixiApp.renderer.view.addEventListener('mousedown', handleMouseDown, false);
+pixiApp.renderer.view.addEventListener('mouseup', handleMouseUp, false);
+drawExpandedView();
 
 let deltaX = 0
 let deltaY = 0
@@ -45,7 +109,7 @@ var program = webgl.createProgram(vs, fs);
 
 // init cubes
 const cubeCenter = [0.0, 0.0, 0.0]
-const magicCube = new MagicCube(3, cubeCenter, 0.9)
+magicCube = new MagicCube(3, cubeCenter, 0.9)
 const cubes = magicCube.cubes
 for (let i = 0; i < magicCube.cubes.length; i++) {
 	const cube = magicCube.cubes[i] as any
