@@ -13,8 +13,7 @@ export class WebGLRenderer {
 
 		initGLContext()
 		this.render = function (camera, objects) {
-			// canvas初始化
-			gl.clearColor(0.2, 0.34, 0.65, 1.0)
+            gl.clearColor(136 / 255, 175 / 255, 204 / 255, 1.0);
 			gl.clearDepth(1.0)
 			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
