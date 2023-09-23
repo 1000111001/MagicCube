@@ -1,12 +1,12 @@
-import { Cube } from './core/cube'
-import { matIV } from './min-matrix'
+import { Cube } from './core/cube';
+import { matIV } from './min-matrix';
 export class MagicCube {
-	static red = [1.0, 0.0, 0.0, 1.0]
-	static yellow = [1.0, 1.0, 0.0, 1.0]
-	static orange = [1.0, 0.647, 0.0, 1.0]
-	static white = [0.99, 0.99, 0.99, 1.0]
-	static green = [0.0, 1.0, 0.0, 1.0]
-	static blue = [0.0, 0.0, 1.0, 1.0]
+	static red = [0.717, 0.070, 0.0, 1.0];
+	static yellow = [1.0, 0.835, 0.0, 1.0];
+	static orange = [1.0, 0.345, 0.0, 1.0];
+	static white = [0.99, 0.99, 0.99, 1.0];
+	static green = [0.0, 0.708, 0.282, 1.0];
+	static blue = [0.0, 0.275, 0.778, 1.0];
 	static black = [0.015, 0.015, 0.015, 1.0]
 
 	constructor(order, center, cubeSize) {
