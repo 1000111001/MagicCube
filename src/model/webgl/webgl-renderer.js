@@ -1,17 +1,11 @@
-import { matIV } from '../../libs/min-matrix'
+import { matIV } from '../../libs/min-matrix';
 export class WebGLRenderer {
 	constructor(canvas) {
 		this.drawcall = 0
+		this.cachedAttributes = undefined;
 
-		// webgl的context获取
-		var gl = canvas.getContext('webgl') || c.getContext('experimental-webgl')
+		var gl = this.initGL(canvas);
 
-		function initGLContext() {
-			gl.disable(gl.CULL_FACE)
-			gl.enable(gl.DEPTH_TEST)
-		}
-
-		initGLContext()
 		this.render = function (camera, objects) {
             gl.clearColor(136 / 255, 175 / 255, 204 / 255, 1.0);
 			gl.clearDepth(1.0)
@@ -30,60 +24,24 @@ export class WebGLRenderer {
 		}
 
 		this.renderObject = function (camera, object) {
-			this.renderBuffer(camera, object)
+			this.renderBuffer(camera, object);
 		}
 
-		let positionBuffer, normalBuffer, colorBuffer, indexBuffer
-
 		this.renderBuffer = function (camera, object) {
-			var programAttributes = getAttributes(object.program)
+			var programAttributes = this.getAttributes(object.program);
+			const buffers = this.initBuffers(object);
 
-			const buffers = object.buffers
-			if (!buffers.position) {
-				buffers.position = gl.createBuffer()
-				gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position)
-				gl.bufferData(
-					gl.ARRAY_BUFFER,
-					new Float32Array(object.vertices),
-					gl.STATIC_DRAW,
-				)
-			}
 			gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position)
 			gl.enableVertexAttribArray(programAttributes.position)
-			gl.vertexAttribPointer(
-				programAttributes.position,
-				3,
-				gl.FLOAT,
-				false,
-				0,
-				0,
-			)
+			gl.vertexAttribPointer(programAttributes.position, 3, gl.FLOAT, false, 0, 0)
 
-			if (!buffers.normal) {
-				buffers.normal = gl.createBuffer()
-				gl.bindBuffer(gl.ARRAY_BUFFER, buffers.normal)
-				gl.bufferData(
-					gl.ARRAY_BUFFER,
-					new Float32Array(object.normals),
-					gl.STATIC_DRAW,
-				)
-			}
 			gl.bindBuffer(gl.ARRAY_BUFFER, buffers.normal)
 			gl.enableVertexAttribArray(programAttributes.normal)
 			gl.vertexAttribPointer(programAttributes.normal, 3, gl.FLOAT, false, 0, 0)
 
-			if (!buffers.color) {
-				buffers.color = gl.createBuffer()
-				gl.bindBuffer(gl.ARRAY_BUFFER, buffers.color)
-				gl.bufferData(
-					gl.ARRAY_BUFFER,
-					new Float32Array(object.colors),
-					gl.STATIC_DRAW,
-				)
-			}
 			gl.bindBuffer(gl.ARRAY_BUFFER, buffers.color)
-			gl.enableVertexAttribArray(programAttributes.color)
-			gl.vertexAttribPointer(programAttributes.color, 4, gl.FLOAT, false, 0, 0)
+			gl.enableVertexAttribArray(programAttributes.aColor)
+			gl.vertexAttribPointer(programAttributes.aColor, 4, gl.FLOAT, false, 0, 0)
 
 			gl.useProgram(object.program)
 
@@ -101,34 +59,10 @@ export class WebGLRenderer {
 			matIV.multiply(vpMatrix, mMatrix, mvpMatrix)
 
 			// uniform变量
-			gl.uniformMatrix4fv(
-				gl.getUniformLocation(object.program, 'mMatrix'),
-				false,
-				mMatrix,
-			)
-			gl.uniformMatrix4fv(
-				gl.getUniformLocation(object.program, 'mvpMatrix'),
-				false,
-				mvpMatrix,
-			)
-			gl.uniform3f(
-				gl.getUniformLocation(object.program, 'lightDirection'),
-				-0.5,
-				1.0,
-				0.5,
-			)
-
-			// index buffer
-			if (indexBuffer == null) {
-				indexBuffer = gl.createBuffer()
-				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer)
-				gl.bufferData(
-					gl.ELEMENT_ARRAY_BUFFER,
-					new Int16Array(object.indices),
-					gl.STATIC_DRAW,
-				)
-			}
-			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer)
+			gl.uniformMatrix4fv(gl.getUniformLocation(object.program, 'mMatrix'), false, mMatrix)
+			gl.uniformMatrix4fv(gl.getUniformLocation(object.program, 'mvpMatrix'), false, mvpMatrix)
+			gl.uniform3f(gl.getUniformLocation(object.program, 'lightDirection'), -0.5, 1.0, 0.5)
+			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indexBuffer)
 
 			// draw
 			gl.drawElements(gl.TRIANGLES, object.indices.length, gl.UNSIGNED_SHORT, 0)
@@ -137,24 +71,66 @@ export class WebGLRenderer {
 			gl.bindBuffer(gl.ARRAY_BUFFER, null)
 			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null)
 		}
+	}
 
-		var cachedAttributes
-		function getAttributes(program) {
-			if (cachedAttributes === undefined) {
-				cachedAttributes = fetchAttributeLocations(gl, program)
-			}
-			return cachedAttributes
-		}
+	initGL(canvas) {
+		this.gl = canvas.getContext('webgl') || c.getContext('experimental-webgl');
+		this.gl.disable(this.gl.CULL_FACE);
+		this.gl.enable(this.gl.DEPTH_TEST);
+		return this.gl;
+	}
 
-		function fetchAttributeLocations(gl, program) {
-			var attributes = {}
-			var n = gl.getProgramParameter(program, gl.ACTIVE_ATTRIBUTES)
-			for (var i = 0; i < n; i++) {
-				var info = gl.getActiveAttrib(program, i)
-				var name = info.name
-				attributes[name] = gl.getAttribLocation(program, name)
-			}
-			return attributes
+	initBuffers(object) {
+		const gl = this.gl;
+		const buffers = object.buffers;
+		if (!buffers.position) {
+			buffers.position = gl.createBuffer()
+			gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position)
+			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(object.vertices), gl.STATIC_DRAW)
 		}
+		if (!buffers.normal) {
+			buffers.normal = gl.createBuffer()
+			gl.bindBuffer(gl.ARRAY_BUFFER, buffers.normal)
+			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(object.normals), gl.STATIC_DRAW)
+		}
+		if (!buffers.color) {
+			buffers.color = gl.createBuffer()
+			gl.bindBuffer(gl.ARRAY_BUFFER, buffers.color)
+			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(object.colors), gl.STATIC_DRAW)
+		}
+		if (!buffers.indexBuffer) {
+			buffers.indexBuffer = gl.createBuffer()
+			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indexBuffer)
+			gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Int16Array(object.indices), gl.STATIC_DRAW)
+		}
+		return buffers;
+	}
+
+	getAttributes(program) {
+		const gl = this.gl;
+		if (this.cachedAttributes === undefined) {
+			this.cachedAttributes = this.fetchAttributeLocations(gl, program)
+		}
+		return this.cachedAttributes;
+	}
+
+	fetchAttributeLocations(gl, program) {
+		var attributes = {}
+		var n = gl.getProgramParameter(program, gl.ACTIVE_ATTRIBUTES)
+		for (var i = 0; i < n; i++) {
+			var info = gl.getActiveAttrib(program, i)
+			console.log(info.name);
+			var name = info.name
+			attributes[name] = gl.getAttribLocation(program, name)
+		}
+		
+		var numUniforms = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
+		for(var i = 0; i < numUniforms; ++i) {
+			var u = gl.getActiveUniform(program, i );
+			if (u) {
+				console.log(u.name);
+			}
+		}
+		return attributes
 	}
 }

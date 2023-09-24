@@ -4,7 +4,7 @@ import * as PIXI from 'pixi.js';
 import { Debugger, MagicCube, Ray, WebGL, WebGLRenderer, matIV } from './model';
 import { LogicCube } from './model/logic-cube';
 
-const camera = { position: [0.0, 4.0, 12.0], target: [0.0, 0.0, 0.0] }
+const camera = { position: [0.0, 6.0, 12.0], target: [0.0, 0.0, 0.0] }
 let hitCubePos
 let cubePos
 let rolldetail: any
@@ -120,7 +120,7 @@ for (let i = 0; i < magicCube.cubes.length; i++) {
 function getShaderSource(id: string) {
     var scriptElement = document.getElementById(id) as HTMLScriptElement;
     if (!scriptElement) { return null; }
-    return scriptElement.text;
+    return scriptElement.textContent;
 }
 
 const renderer = new WebGLRenderer(canvas)
