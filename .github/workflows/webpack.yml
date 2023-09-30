@@ -12,7 +12,8 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [14.x, 16.x, 18.x]
+        # node-version: [14.x, 16.x, 18.x]
+        node-version: [18.x]
 
     steps:
     - uses: actions/checkout@v3
@@ -36,6 +37,7 @@ jobs:
         source-directory: dist/
         destination-github-username: '1000111001'
         destination-repository-name: '1000111001.github.io'
+        target-directory: games/MagicCube/
         commit-message: See ORIGIN_COMMIT from $GITHUB_REF
         target-branch: main-does-not-exist
         create-target-branch-if-needed: true
