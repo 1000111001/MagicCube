@@ -28,9 +28,8 @@ jobs:
         npx webpack
         
     - name: Push to another repository
-      # You may pin to the exact commit or the version.
-      # uses: kevocde/github-action-push-to-another-repository@e015a867ff2f9cc5e8e0302f0ac70631d261d983
-      uses: kevocde/github-action-push-to-another-repository@v0.1.1
+      id: push_directory
+      uses: cpina/github-action-push-to-another-repository@main
       env:
         API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
       with:
