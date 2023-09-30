@@ -26,3 +26,17 @@ jobs:
       run: |
         npm install
         npx webpack
+        
+    - name: Push to another repository
+      # You may pin to the exact commit or the version.
+      # uses: kevocde/github-action-push-to-another-repository@e015a867ff2f9cc5e8e0302f0ac70631d261d983
+      uses: kevocde/github-action-push-to-another-repository@v0.1.1
+      env:
+        API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+      with:
+        source-directory: dist/
+        destination-github-username: '1000111001'
+        destination-repository-name: '1000111001.github.io'
+        commit-message: See ORIGIN_COMMIT from $GITHUB_REF
+        target-branch: main-does-not-exist
+        create-target-branch-if-needed: true
