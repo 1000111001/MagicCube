@@ -39,5 +39,5 @@ jobs:
         destination-repository-name: '1000111001.github.io'
         target-directory: games/MagicCube/
         commit-message: See ORIGIN_COMMIT from $GITHUB_REF
-        target-branch: main-does-not-exist
+        target-branch: master
         create-target-branch-if-needed: true
