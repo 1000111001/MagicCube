@@ -1,6 +1,10 @@
 import { matIV } from ".";
 
 class LogicBlock {
+    index: any;
+    position: any;
+    colors: Array<number>;
+
     constructor () {
         this.index = {x: 0, y: 0, z: 0};
         this.position = {x: 0, y: 0, z: 0};
@@ -8,7 +12,19 @@ class LogicBlock {
     }
 }
 
+interface BlockFilter {
+    (b:LogicBlock):boolean;
+}
+
 export class LogicCube {
+    blocks: Array<LogicBlock>;
+    colorTransL: Array<number>;
+    colorTransR: Array<number>;
+    colorTransU: Array<number>;
+    colorTransD: Array<number>;
+    colorTransF: Array<number>;
+    colorTransB: Array<number>;
+
     constructor() {
         this.blocks = []
 		for (let x = -1; x <= 1; ++x) {
@@ -37,7 +53,7 @@ export class LogicCube {
     }
 
     ToArray() {
-        function to2D(arr) {
+        function to2D(arr: Array<any>) {
             const newArr = [];
             while(arr.length) newArr.push(arr.splice(0,3));
             return newArr;
@@ -64,9 +80,9 @@ export class LogicCube {
         return data;
     }
 
-    OnRotate(normal, r, index) {
+    OnRotate(normal: any, r: number, index: any) {
         let clockwise = r < 0;
-        let colorTrans;
+        let colorTrans: Array<number> = [];
         let j = 0;
         if (normal[0] == -1) {
             colorTrans = clockwise ? this.colorTransL : this.colorTransR;
@@ -94,10 +110,11 @@ export class LogicCube {
         }
         let step = Math.abs(r);
         for (let i = 0; i < step; ++i) {
-            this.Rot(clockwise, normal, b => {
+            this.Rot(clockwise, normal, (b: LogicBlock) => {
                 if (normal[0] != 0) return b.position.x == j;
                 else if (normal[1] != 0) return b.position.y == j;
                 else if (normal[2] != 0) return b.position.z == j;
+                return false;
             }, colorTrans);
         }
     }
@@ -109,14 +126,14 @@ export class LogicCube {
     U() { this.Rot(true, [0, 1, 0], b => b.position.y == 1, this.colorTransU); }
     D() { this.Rot(true, [0, -1, 0], b => b.position.y == -1, this.colorTransD); }
 
-    Rot(clockwise, axis, filter, colorTrans) {
+    Rot(clockwise: boolean, axis: Array<number>, filter: BlockFilter, colorTrans: Array<number>) {
         let radius = clockwise ? -0.5 * Math.PI : 0.5 * Math.PI; 
         let mat = matIV.identity();
         matIV.rotate(mat, radius, axis, mat);
         let list = this.blocks.filter(filter);
         for (let i = 0; i < list.length; i++) {
             const b = list[i];
-            const p = [b.position.x, b.position.y, b.position.z];
+            let p = [b.position.x, b.position.y, b.position.z];
             p = matIV.multiplyVec3(mat, p);
             b.position.x = Math.round(p[0]);
             b.position.y = Math.round(p[1]);
@@ -125,7 +142,7 @@ export class LogicCube {
         }
     }
 
-    TransColor(colors, trans) {
+    TransColor(colors: Array<number>, trans: Array<number>) {
         let c = colors[trans[0]];
         for (let i = 0; i < trans.length - 1; ++i) {
             let next = (i + 1) % trans.length;
