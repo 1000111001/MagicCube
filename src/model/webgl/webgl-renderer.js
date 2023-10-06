@@ -119,7 +119,6 @@ export class WebGLRenderer {
 		var n = gl.getProgramParameter(program, gl.ACTIVE_ATTRIBUTES)
 		for (var i = 0; i < n; i++) {
 			var info = gl.getActiveAttrib(program, i)
-			console.log(info.name);
 			var name = info.name
 			attributes[name] = gl.getAttribLocation(program, name)
 		}
@@ -128,7 +127,7 @@ export class WebGLRenderer {
 		for(var i = 0; i < numUniforms; ++i) {
 			var u = gl.getActiveUniform(program, i );
 			if (u) {
-				console.log(u.name);
+				// console.log(u.name);
 			}
 		}
 		return attributes

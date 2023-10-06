@@ -70,6 +70,7 @@ export class LogicCube {
         let j = 0;
         if (normal[0] == -1) {
             colorTrans = clockwise ? this.colorTransL : this.colorTransR;
+            j = Math.round(index[0] - 1);
         } 
         else if (normal[0] == 1) {
             colorTrans = clockwise ? this.colorTransR: this.colorTransL;
@@ -81,6 +82,7 @@ export class LogicCube {
         }
         else if (normal[2] == -1) {
             colorTrans = clockwise ? this.colorTransB: this.colorTransF;
+            j = Math.round(index[2] - 1);
         }
         else if (normal[1] == 1) {
             colorTrans = clockwise ? this.colorTransU: this.colorTransD;
@@ -88,6 +90,7 @@ export class LogicCube {
         }
         else if (normal[1] == -1) {
             colorTrans = clockwise ? this.colorTransD: this.colorTransU;
+            j = Math.round(index[1] - 1);
         }
         let step = Math.abs(r);
         for (let i = 0; i < step; ++i) {
