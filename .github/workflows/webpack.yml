@@ -41,3 +41,4 @@ jobs:
         commit-message: See ORIGIN_COMMIT from $GITHUB_REF
         target-branch: master
         create-target-branch-if-needed: true
+      if: github.event_name != 'pull_request'
