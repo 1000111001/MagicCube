@@ -13,6 +13,9 @@ module.exports = {
 		path: path.join(__dirname, 'dist'),
 		clean: true,
 	},
+	resolve: {
+		extensions: ['.ts', '.js'],
+	},
 	mode: 'production',
 	devServer: {
 		open: true,

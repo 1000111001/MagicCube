@@ -289,7 +289,7 @@ function handleMouseUp(e: any) {
 
 	if (MBUTTON == 1) {
 		// superflip
-		magicCube.ApplyOperations("R,L,U,U,F,Ui,D,F,F,R,R,B,B,L,U,U,Fi,Bi,U,R,R,D,F,F,U,R,R,U");
+		magicCube.ApplyOperations("R,L,U2,F,Ui,D,F2,R2,B2,L,U2,Fi,Bi,U,R2,D,F2,U,R2,U");
 		MBUTTON = null
 		return;
 	}

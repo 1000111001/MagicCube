@@ -104,28 +104,35 @@ export class MagicCube {
 		})();
 	}
 	
-    L() { this.Rot(0, 0); }
-    R() { this.Rot(0, 2); }
-    F() { this.Rot(2, 2); }
-    B() { this.Rot(2, 0); }
-    U() { this.Rot(1, 2); }
-    D() { this.Rot(1, 0); }
+    L() { this.Rot(0, 0, 90); }
+    R() { this.Rot(0, 2, 90); }
+    F() { this.Rot(2, 2, 90); }
+    B() { this.Rot(2, 0, 90); }
+    U() { this.Rot(1, 2, 90); }
+    D() { this.Rot(1, 0, 90); }
 	
-    Li() { this.Rot(0, 0, true); }
-    Ri() { this.Rot(0, 2, true); }
-    Fi() { this.Rot(2, 2, true); }
-    Bi() { this.Rot(2, 0, true); }
-    Ui() { this.Rot(1, 2, true); }
-    Di() { this.Rot(1, 0, true); }
+    Li() { this.Rot(0, 0, -90); }
+    Ri() { this.Rot(0, 2, -90); }
+    Fi() { this.Rot(2, 2, -90); }
+    Bi() { this.Rot(2, 0, -90); }
+    Ui() { this.Rot(1, 2, -90); }
+    Di() { this.Rot(1, 0, -90); }
+	
+    L2() { this.Rot(0, 0, 180); }
+    R2() { this.Rot(0, 2, 180); }
+    F2() { this.Rot(2, 2, 180); }
+    B2() { this.Rot(2, 0, 180); }
+    U2() { this.Rot(1, 2, 180); }
+    D2() { this.Rot(1, 0, 180); }
 
-	Rot(axis, j, inverse) {
+	Rot(axis, j, degree) {
 		const g = []
 		for (let i = 0; i < this.cubes.length; ++i) {
 			if (this.cubes[i].id[axis] == j) g.push(this.cubes[i]);
 		}
 		const normal = [0, 0, 0];
 		normal[axis] = j - 1;
-		this.RotWithAnime(g, normal, inverse ? -90 : 90);
+		this.RotWithAnime(g, normal, degree);
 	}
 
 	RotWithAnime(group, normal, r) {
