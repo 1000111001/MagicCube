@@ -116,6 +116,10 @@ for (let i = 0; i < magicCube.cubes.length; i++) {
 	cube.program = program
 	cube.buffers = {}
 }
+magicCube.rotateCallback = (n: any, r: any, id: any) => {
+	logicCube.OnRotate(n, r, id);
+	drawExpandedView();
+};
 
 function getShaderSource(id: string) {
     var scriptElement = document.getElementById(id) as HTMLScriptElement;
@@ -215,25 +219,23 @@ function handleMouseMove(e: any) {
 		const v = [deltaY * dragSpeed, deltaX * dragSpeed, 0]
 
 		const groups = dragGroups
-		let o
-		let ndir
-		const m = matIV.translate(matIV.identity([]), v, [])
-		const mpos = matIV
-			.multiply(matIV.inverse(magicCube.matrix, []), m, [])
+		const t = matIV.translate(matIV.identity([]), v, [])
+		const signedDelta = matIV.multiply(matIV.inverse(magicCube.matrix, []), t, [])
 			.slice(-4, -1) // 将转动向量变换到mcube坐标系中
-		let group =
-			groups[((o = mpos.map(Math.abs)), (ndir = o.indexOf(Math.max(...o))))]
+		const delta = signedDelta.map(Math.abs)
+		const ndir = delta.indexOf(Math.max(...delta))
+		let group = groups[ndir]
 
 		const normal = [0, 0, 0]
 		normal[ndir] = 1
-		magicCube.rotateGroup(group, normal, mpos[ndir])
+		magicCube.rotateGroup(group, normal, signedDelta[ndir])
 
 		if (dragDir != void 0 && dragDir != ndir) {
 			magicCube.rotateGroup(groups[dragDir], normal, 0)
 		}
 		if ((group = groups[(dragDir = ndir)]))
-			magicCube.rotateGroup(group, normal, mpos[dragDir])
-		dragRots = mpos
+			magicCube.rotateGroup(group, normal, signedDelta[dragDir])
+		dragRots = signedDelta
 	}
 }
 
@@ -284,6 +286,14 @@ function handleMouseDown(e: any) {
 }
 
 function handleMouseUp(e: any) {
+
+	if (MBUTTON == 1) {
+		// superflip
+		magicCube.ApplyOperations("R,L,U,U,F,Ui,D,F,F,R,R,B,B,L,U,U,Fi,Bi,U,R,R,D,F,F,U,R,R,U");
+		MBUTTON = null
+		return;
+	}
+
 	mouseDown = false
 	if (MBUTTON == 2) {
 		MBUTTON = null
