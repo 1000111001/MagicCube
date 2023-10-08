@@ -5,22 +5,6 @@ import * as PIXI from 'pixi.js';
 import { Debugger, MagicCube, Ray, WebGL, WebGLRenderer, matIV } from './model';
 import { LogicCube } from './model/logic-cube';
 
-async function main() {
-	let logicCube = new LogicCube();
-	logicCube.R();
-	logicCube.D();
-	logicCube.D();
-	logicCube.R();
-	logicCube.F();
-	logicCube.L();
-	logicCube.R();
-	const input = logicCube.ToFaceletString();
-	const output = await kociemba.solve(input);
-	console.log("input", input);
-	console.log("output", output.split(" "));
-}
-main();
-
 const camera = { position: [0.0, 6.0, 12.0], target: [0.0, 0.0, 0.0] }
 let hitCubePos
 let cubePos
@@ -302,11 +286,26 @@ function handleMouseDown(e: any) {
 	}
 }
 
+async function solve(logicCube: LogicCube) {
+	const input = logicCube.ToFaceletString();
+	if (input == 'UUUUUUUUURRRRRRRRRFFFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB') {
+		return;
+	}
+	const output = await kociemba.solve(input);
+	console.log("input", input);
+	console.log("output", output.replaceAll(' ', ','));
+	var solution = output.replaceAll(' ', ',').replaceAll('\'', 'i');
+	if (solution != "") {
+		magicCube.ApplyOperations(solution);
+	}
+}
+
 function handleMouseUp(e: any) {
 
 	if (MBUTTON == 1) {
 		// superflip
-		magicCube.ApplyOperations("R,L,U2,F,Ui,D,F2,R2,B2,L,U2,Fi,Bi,U,R2,D,F2,U,R2,U");
+		// magicCube.ApplyOperations("R,L,U2,F,Ui,D,F2,R2,B2,L,U2,Fi,Bi,U,R2,D,F2,U,R2,U");
+		solve(logicCube);
 		MBUTTON = null
 		return;
 	}
