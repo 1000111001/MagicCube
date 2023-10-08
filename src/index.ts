@@ -1,8 +1,25 @@
 import './index.css';
 
+import * as kociemba from "kociemba-wasm";
 import * as PIXI from 'pixi.js';
 import { Debugger, MagicCube, Ray, WebGL, WebGLRenderer, matIV } from './model';
 import { LogicCube } from './model/logic-cube';
+
+async function main() {
+	let logicCube = new LogicCube();
+	logicCube.R();
+	logicCube.D();
+	logicCube.D();
+	logicCube.R();
+	logicCube.F();
+	logicCube.L();
+	logicCube.R();
+	const input = logicCube.ToFaceletString();
+	const output = await kociemba.solve(input);
+	console.log("input", input);
+	console.log("output", output.split(" "));
+}
+main();
 
 const camera = { position: [0.0, 6.0, 12.0], target: [0.0, 0.0, 0.0] }
 let hitCubePos

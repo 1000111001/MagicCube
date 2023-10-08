@@ -25,6 +25,15 @@ export class LogicCube {
     colorTransF: Array<number>;
     colorTransB: Array<number>;
 
+    static colorName: Map<number, string> = new Map<number, string>([
+        [1, 'U'],
+        [2, 'L'],
+        [3, 'F'],
+        [4, 'R'],
+        [5, 'B'],
+        [6, 'D'],
+    ]);
+
     constructor() {
         this.blocks = []
 		for (let x = -1; x <= 1; ++x) {
@@ -50,6 +59,48 @@ export class LogicCube {
         this.colorTransD = Array.from(this.colorTransU).reverse();
         this.colorTransF = [0, 1, 5, 3];
         this.colorTransB = Array.from(this.colorTransF).reverse();
+    }
+
+    ToFaceletString() {
+        let data = this.ToArray();
+        let str: string = "";
+        // U
+        for (let j = 0; j < 3; ++j) {
+            for (let i = 0; i < 3; ++i) {
+                str += LogicCube.colorName.get(data[0][j][i]);
+            }
+        }
+        // R
+        for (let j = 3; j < 6; ++j) {
+            for (let i = 6; i < 9; ++i) {
+                str += LogicCube.colorName.get(data[Math.floor(i/3) + 1][j - 3][i % 3]);
+            }
+        }
+        // F
+        for (let j = 3; j < 6; ++j) {
+            for (let i = 3; i < 6; ++i) {
+                str += LogicCube.colorName.get(data[Math.floor(i/3) + 1][j - 3][i % 3]);
+            }
+        }
+        // D
+        for (let j = 8; j >= 6; --j) {
+            for (let i = 0; i < 3; ++i) {
+                str += LogicCube.colorName.get(data[5][j - 6][i]);
+            }
+        }
+        // L
+        for (let j = 3; j < 6; ++j) {
+            for (let i = 0; i < 3; ++i) {
+                str += LogicCube.colorName.get(data[Math.floor(i/3) + 1][j - 3][i % 3]);
+            }
+        }
+        // B
+        for (let j = 3; j < 6; ++j) {
+            for (let i = 9; i < 12; ++i) {
+                str += LogicCube.colorName.get(data[Math.floor(i/3) + 1][j - 3][i % 3]);
+            }
+        }
+        return str;
     }
 
     ToArray() {
