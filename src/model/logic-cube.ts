@@ -1,12 +1,10 @@
 import { matIV } from ".";
 
 class LogicBlock {
-    index: any;
     position: any;
     colors: Array<number>;
 
     constructor () {
-        this.index = {x: 0, y: 0, z: 0};
         this.position = {x: 0, y: 0, z: 0};
         this.colors = [0, 0, 0, 0, 0, 0];
     }
@@ -40,7 +38,6 @@ export class LogicCube {
 			for (let y = -1; y <= 1; ++y) {
 				for (let z = -1; z <= 1; ++z) {
 					let cube = new LogicBlock();
-                    cube.index = {x, y, z};
                     cube.position = {x, y, z};
 					if (y == 1) cube.colors[0] = 1;
 					if (x == -1) cube.colors[1] = 2;
@@ -83,7 +80,7 @@ export class LogicCube {
             }
         }
         // D
-        for (let j = 8; j >= 6; --j) {
+        for (let j = 6; j < 9; ++j) {
             for (let i = 0; i < 3; ++i) {
                 str += LogicCube.colorName.get(data[5][j - 6][i]);
             }
@@ -104,30 +101,53 @@ export class LogicCube {
     }
 
     ToArray() {
+        function dot(a: {x:number,y:number,z:number}, b: {x:number,y:number,z:number}) {
+            return a.x*b.x + a.y*b.y + a.z*b.z;
+        }
+        function filter(c: {x:number,y:number,z:number}, b: LogicBlock) {
+            if (c.x == c.y) {
+                return b.position.z == c.z;
+            }
+            else if (c.x == c.z) {
+                return b.position.y == c.y;
+            }
+            return b.position.x == c.x;
+        }
         function to2D(arr: Array<any>) {
             const newArr = [];
             while(arr.length) newArr.push(arr.splice(0,3));
             return newArr;
         }
+        function findBlocks(blocks: LogicBlock[], front:LogicBlock, up:LogicBlock, right:LogicBlock):any[][] {
+            return to2D(blocks.filter(b => filter(front.position, b)).sort((a, b) => {
+                return dot(a.position, up.position) != dot(b.position, up.position) 
+                    ? dot(b.position, up.position) - dot(a.position, up.position)
+                    : dot(a.position, right.position) - dot(b.position, right.position);
+            }).map(b => b.colors[front.colors.indexOf(Math.max(...front.colors))]))
+        }
+        let centers: LogicBlock[] = [];
+        for (let i = 0; i < this.blocks.length; ++i) {
+            let b = this.blocks[i];
+            let zeroCnt = 0;
+            zeroCnt += (b.position.x == 0 ? 1 : 0);
+            zeroCnt += (b.position.y == 0 ? 1 : 0);
+            zeroCnt += (b.position.z == 0 ? 1 : 0);
+            if (zeroCnt != 2) continue;
+            centers[Math.max(...b.colors) - 1] = b;
+        }
+        let up = centers[0];
+        let left = centers[1];
+        let front = centers[2];
+        let right = centers[3];
+        let back = centers[4];
+        let down = centers[5];
         let data = [];
-        data.push(to2D(this.blocks.filter(b => b.position.y == 1).sort((a, b) => {
-            return a.position.z != b.position.z ? a.position.z - b.position.z : a.position.x - b.position.x;
-        }).map(b => b.colors[0])));
-        data.push(to2D(this.blocks.filter(b => b.position.x == -1).sort((a, b) => {
-            return a.position.y != b.position.y ? b.position.y - a.position.y : a.position.z - b.position.z;
-        }).map(b => b.colors[1])));
-        data.push(to2D(this.blocks.filter(b => b.position.z == 1).sort((a, b) => {
-            return a.position.y != b.position.y ? b.position.y - a.position.y : a.position.x - b.position.x;
-        }).map(b => b.colors[2])));
-        data.push(to2D(this.blocks.filter(b => b.position.x == 1).sort((a, b) => {
-            return a.position.y != b.position.y ? b.position.y - a.position.y : b.position.z - a.position.z;
-        }).map(b => b.colors[3])));
-        data.push(to2D(this.blocks.filter(b => b.position.z == -1).sort((a, b) => {
-            return a.position.y != b.position.y ? b.position.y - a.position.y : b.position.x - a.position.x;
-        }).map(b => b.colors[4])));
-        data.push(to2D(this.blocks.filter(b => b.position.y == -1).sort((a, b) => {
-            return a.position.z != b.position.z ? a.position.z - b.position.z : a.position.x - b.position.x;
-        }).map(b => b.colors[5])));
+        data.push(findBlocks(this.blocks, up, back, right));
+        data.push(findBlocks(this.blocks, left, up, front));
+        data.push(findBlocks(this.blocks, front, up, right));
+        data.push(findBlocks(this.blocks, right, up, back));
+        data.push(findBlocks(this.blocks, back, up, left));
+        data.push(findBlocks(this.blocks, down, front, right));
         return data;
     }
 
