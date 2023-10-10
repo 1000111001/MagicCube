@@ -4,6 +4,7 @@ import * as kociemba from "kociemba-wasm";
 import * as PIXI from 'pixi.js';
 import { Debugger, MagicCube, Ray, WebGL, WebGLRenderer, matIV } from './model';
 import { LogicCube } from './model/logic-cube';
+import { TextButton } from './model/ui/text-button';
 
 const camera = { position: [0.0, 6.0, 12.0], target: [0.0, 0.0, 0.0] }
 let hitCubePos
@@ -30,6 +31,18 @@ expandedView.on('pointerdown', function() {
     
 });
 pixiApp.stage.addChild(expandedView);
+
+const button = new TextButton({
+    text: 'Solve',
+    textColor: '#000000',
+	action: _ => {
+		solve(logicCube);
+	}
+});
+button.view.x = 83;
+button.view.y = 350;
+pixiApp.stage.addChild(button.view);
+
 document.body.appendChild(pixiApp.view);
 
 function drawExpandedView() {
