@@ -1,10 +1,9 @@
 import './index.css';
 
 import * as kociemba from "kociemba-wasm";
-import * as PIXI from 'pixi.js';
 import { Debugger, MagicCube, Ray, WebGL, WebGLRenderer, matIV } from './model';
 import { LogicCube } from './model/logic-cube';
-import { TextButton } from './model/ui/text-button';
+import { MainUI } from './model/ui/main-ui';
 
 const camera = { position: [0.0, 6.0, 12.0], target: [0.0, 0.0, 0.0] }
 let hitCubePos
@@ -17,76 +16,17 @@ debugCanvas.renderFps(0, 0)
 let magicCube: MagicCube;
 let logicCube = new LogicCube();
 
-const pixiApp = new PIXI.Application<HTMLCanvasElement>({
-    resizeTo: window,
-    backgroundAlpha: 0.0,
+let mainUI: MainUI = new MainUI({
+	shuffle: shuffle,
+	solve: solve,
+	logicCube: logicCube,
 });
-pixiApp.renderer.view.style.position = "absolute";
-pixiApp.renderer.view.style.left = "0px";
-pixiApp.renderer.view.style.top = "0px";
-let expandedView = new PIXI.Graphics();
-expandedView.eventMode = 'static';
-expandedView.cursor = 'pointer';
-expandedView.on('pointerdown', function() {
-    
-});
-pixiApp.stage.addChild(expandedView);
-
-const button = new TextButton({
-    text: 'Solve',
-    textColor: '#000000',
-	action: _ => {
-		solve(logicCube);
-	}
-});
-button.view.x = 83;
-button.view.y = 350;
-pixiApp.stage.addChild(button.view);
-
-document.body.appendChild(pixiApp.view);
-
-function drawExpandedView() {
-
-    let data = logicCube.ToArray();
-
-    let gridSize = 22;
-    let o = [20, 85];
-    let space = 2;
-    expandedView.clear();
-    for (let i = 0; i < 3; ++i) {
-        for (let j = 0; j < 3; ++j) {
-            let color = MagicCube.colors[data[0][j][i]];
-            expandedView.lineStyle(1, MagicCube.black, 1);
-            expandedView.beginFill(color, 1);
-            expandedView.drawRect(o[0] + (i + 3) * (gridSize + space), o[1] + (j + 1) * (gridSize + space), gridSize, gridSize);
-            expandedView.endFill();
-        }
-    }
-    for (let i = 0; i < 12; ++i) {
-        for (let j = 3; j < 6; ++j) {
-            let color = MagicCube.colors[data[Math.floor(i/3) + 1][j - 3][i % 3]];
-            expandedView.lineStyle(1, MagicCube.black, 1);
-            expandedView.beginFill(color, 1);
-            expandedView.drawRect(o[0] + (i + 0) * (gridSize + space), o[1] + (j + 1) * (gridSize + space), gridSize, gridSize);
-            expandedView.endFill();
-        }
-    }
-    for (let i = 0; i < 3; ++i) {
-        for (let j = 6; j < 9; ++j) {
-            let color = MagicCube.colors[data[5][j - 6][i]];
-            expandedView.lineStyle(1, MagicCube.black, 1);
-            expandedView.beginFill(color, 1);
-            expandedView.drawRect(o[0] + (i + 3) * (gridSize + space), o[1] + (j + 1) * (gridSize + space), gridSize, gridSize);
-            expandedView.endFill();
-        }
-    }
-}
-
-pixiApp.renderer.view.addEventListener("contextmenu", function (e: any) { e.preventDefault(); });   //屏蔽右键菜单
-pixiApp.renderer.view.addEventListener('mousemove', handleMouseMove, false);
-pixiApp.renderer.view.addEventListener('mousedown', handleMouseDown, false);
-pixiApp.renderer.view.addEventListener('mouseup', handleMouseUp, false);
-drawExpandedView();
+document.body.appendChild(mainUI.pixiApp.view);
+mainUI.pixiApp.renderer.view.addEventListener("contextmenu", function (e: any) { e.preventDefault(); });   //屏蔽右键菜单
+mainUI.pixiApp.renderer.view.addEventListener('mousemove', handleMouseMove, false);
+mainUI.pixiApp.renderer.view.addEventListener('mousedown', handleMouseDown, false);
+mainUI.pixiApp.renderer.view.addEventListener('mouseup', handleMouseUp, false);
+mainUI.drawExpandedView(logicCube);
 
 let deltaX = 0
 let deltaY = 0
@@ -132,7 +72,7 @@ for (let i = 0; i < magicCube.cubes.length; i++) {
 }
 magicCube.rotateCallback = (n: any, r: any, id: any) => {
 	logicCube.OnRotate(n, r, id);
-	drawExpandedView();
+	mainUI.drawExpandedView(logicCube);
 };
 
 function getShaderSource(id: string) {
@@ -299,6 +239,18 @@ function handleMouseDown(e: any) {
 	}
 }
 
+function shuffle() {
+	// superflip
+	// magicCube.ApplyOperations("R,L,U2,F,Ui,D,F2,R2,B2,L,U2,Fi,Bi,U,R2,D,F2,U,R2,U");
+	let seq = [];
+	let ops = ['U','R','F','D','L','B'];
+	for (let i = 0; i < 20; ++i) {
+		let o = Math.floor(Math.random() * 6);
+		seq.push(ops[o]);
+	}
+	magicCube.ApplyOperations(seq.join(','));
+}
+
 async function solve(logicCube: LogicCube) {
 	const input = logicCube.ToFaceletString();
 	if (input == 'UUUUUUUUURRRRRRRRRFFFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB') {
@@ -316,9 +268,6 @@ async function solve(logicCube: LogicCube) {
 function handleMouseUp(e: any) {
 
 	if (MBUTTON == 1) {
-		// superflip
-		// magicCube.ApplyOperations("R,L,U2,F,Ui,D,F2,R2,B2,L,U2,Fi,Bi,U,R2,D,F2,U,R2,U");
-		solve(logicCube);
 		MBUTTON = null
 		return;
 	}
@@ -342,7 +291,7 @@ function handleMouseUp(e: any) {
 	magicCube.onRotateDone(group, normal, r);
 	if (r != 0) {
 		logicCube.OnRotate(normal, r, hitCube.id);
-		drawExpandedView();
+		mainUI.drawExpandedView(logicCube);
 	}
 	if ((r = dragRots[dragDir] %= 90)) {
 		if (Math.abs(r) > 45) {
