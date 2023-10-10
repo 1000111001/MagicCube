@@ -16,7 +16,7 @@ export class Cube {
 		this.vertices = Cube.sharedMesh.position
 		this.normals = Cube.sharedMesh.normal
 		this.indices = Array.from(
-			{ length: Cube.sharedMesh.position.length },
+			{ length: Cube.sharedMesh.position.length / 3 },
 			(val, i) => i,
 		)
 
